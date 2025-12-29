@@ -2,43 +2,71 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Estável</title>
+    <title>Narrativa Inclusiva - Versão Final</title>
     <style>
-        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
-        .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .cena { width: 200px; padding: 10px; background: #1e1e1e; border: 2px solid #333; border-radius: 10px; }
-        .cena img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
-        textarea { width: 80%; height: 180px; font-size: 1.4rem; padding: 15px; border-radius: 10px; border: 4px solid #4caf50; background: white; color: black; }
-        #btnStart { background: #ce1212; color: white; padding: 15px 30px; font-size: 1.2rem; border: none; border-radius: 8px; cursor: pointer; }
-        .status { margin: 10px; color: #ffcc00; font-weight: bold; height: 24px; }
+        :root { --primary: #007bff; --success: #28a745; --bg: #f4f4f9; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); text-align: center; padding: 20px; color: #333; }
+        
+        .quadros { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        .cena { width: 280px; background: white; border: 3px solid #ddd; border-radius: 12px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
+        .desc-texto { font-size: 0.9rem; color: #555; text-align: left; min-height: 60px; border-top: 1px solid #eee; pt: 10px; }
+
+        textarea { width: 90%; max-width: 900px; height: 200px; font-size: 1.6rem; padding: 20px; border-radius: 12px; border: 4px solid var(--primary); margin: 20px 0; }
+        
+        #btnStart { background: var(--primary); color: white; padding: 20px 40px; font-size: 1.4rem; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,123,255,0.3); }
+        #btnStart.ativo { background: var(--success); }
+
+        .feedback-voz { font-weight: bold; color: var(--primary); margin: 15px; font-size: 1.2rem; min-height: 1.5em; }
+        .instrucoes-painel { background: #fff; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #ccc; margin-top: 20px; }
+        .comando { color: var(--primary); font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <h1>Escrita Criativa</h1>
-    
-    <button id="btnStart">ATIVAR MICROFONE (Clique apenas uma vez)</button>
-    <div id="statusVoz" class="status">Sistema Desligado</div>
+    <button id="btnStart">ATIVAR SISTEMA E MICROFONE</button>
+    <div id="statusVoz" class="feedback-voz">Aguardando ativação...</div>
 
     <div class="quadros">
-        <div class="cena"><img src="https://picsum.photos/seed/1/200/120"><div>Cena 1</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/2/200/120"><div>Cena 2</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/3/200/120"><div>Cena 3</div></div>
+        <div class="cena">
+            <img src="https://picsum.photos/seed/forest1/400/300" alt="Cena 1">
+            <div class="desc-texto"><strong>Cena 1:</strong> Uma floresta mágica com árvores azuis e raios de sol entre as folhas.</div>
+        </div>
+        <div class="cena">
+            <img src="https://picsum.photos/seed/chest2/400/300" alt="Cena 2">
+            <div class="desc-texto"><strong>Cena 2:</strong> Um baú de madeira velha escondido atrás de uma cachoeira.</div>
+        </div>
+        <div class="cena">
+            <img src="https://picsum.photos/seed/boy3/400/300" alt="Cena 3">
+            <div class="desc-texto"><strong>Cena 3:</strong> Um menino explorador encontrando o baú e sorrindo.</div>
+        </div>
     </div>
 
-    <textarea id="campo" placeholder="Clique no botão acima para começar..."></textarea>
+    <textarea id="campoTexto" placeholder="Escreva sua história aqui..."></textarea>
+
+    <div class="instrucoes-painel">
+        <h3>Comandos de Voz:</h3>
+        <p><span class="comando">"Descrever tudo"</span> ou <span class="comando">"Descrever cena 1, 2 ou 3"</span></p>
+        <p><span class="comando">"Leitura"</span> (Lê seu texto) | <span class="comando">"Sinônimo"</span> (Dá opções para a última palavra)</p>
+        <p><span class="comando">"Salvar"</span> (Gera arquivo .txt)</p>
+    </div>
 
     <script>
         const btn = document.getElementById('btnStart');
+        const campo = document.getElementById('campoTexto');
         const statusVoz = document.getElementById('statusVoz');
-        const campo = document.getElementById('campo');
         const synth = window.speechSynthesis;
 
-        // Banco de sinônimos corrigido
+        const descricoes = {
+            1: "Cena 1: Uma floresta mágica com árvores azuis e raios de sol entre as folhas.",
+            2: "Cena 2: Um baú de madeira velha escondido atrás de uma cachoeira.",
+            3: "Cena 3: Um menino explorador encontrando o baú e sorrindo."
+        };
+
         const sinonimosDB = {
-            "feliz": ["alegre", "contente", "radiante"],
-            "grande": ["enorme", "gigante", "amplo"],
-            "olhar": ["ver", "observar", "contemplar"]
+            "feliz": ["alegre", "contente", "satisfeito", "radiante"],
+            "floresta": ["mata", "selva", "bosque"],
+            "encontrar": ["achar", "descobrir", "localizar"]
         };
 
         function falar(texto) {
@@ -48,69 +76,63 @@
             synth.speak(u);
         }
 
-        // Inicialização do reconhecimento
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!Recognition) {
-            alert("Seu navegador não suporta reconhecimento de voz. Tente o Google Chrome.");
-        }
-
-        const recognition = new Recognition();
+        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
         recognition.lang = 'pt-BR';
-        recognition.continuous = true; // Mantém o microfone aberto por mais tempo
+        recognition.continuous = true;
         recognition.interimResults = false;
 
         btn.onclick = () => {
-            try {
-                recognition.start();
-                btn.style.display = 'none';
-                statusVoz.innerText = "OUVINDO COMANDOS...";
-                falar("Sistema iniciado. O cursor está no campo de texto.");
-                campo.focus();
-            } catch (e) {
-                console.log("Reconhecimento já estava ativo.");
-            }
+            recognition.start();
+            btn.innerText = "SISTEMA ATIVO";
+            btn.classList.add('ativo');
+            statusVoz.innerText = "Ouvindo agora...";
+            falar("Sistema iniciado. Use o teclado ou dê comandos de voz.");
+            campo.focus();
         };
 
         recognition.onresult = (event) => {
             const comando = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-            console.log("Comando recebido:", comando);
+            statusVoz.innerText = "Você disse: " + comando;
 
             if (comando.includes("descrever")) {
-                falar("Cena 1: Uma floresta. Cena 2: Um baú. Cena 3: Um menino sorrindo.");
-            } else if (comando.includes("leitura")) {
-                falar(campo.value || "Nada escrito.");
-            } else if (comando.includes("sinônimo")) {
+                if (comando.includes("1") || comando.includes("um")) falar(descricoes[1]);
+                else if (comando.includes("2") || comando.includes("dois")) falar(descricoes[2]);
+                else if (comando.includes("3") || comando.includes("três")) falar(descricoes[3]);
+                else falar(descricoes[1] + descricoes[2] + descricoes[3]);
+            } 
+            else if (comando.includes("leitura") || comando.includes("ler")) {
+                falar(campo.value || "O texto está vazio.");
+            }
+            else if (comando.includes("sinônimo")) {
                 const palavras = campo.value.trim().split(/\s+/);
-                const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!]/g, "");
+                const ultima = palavras[palavras.length - 1]?.toLowerCase().replace(/[.,!]/g, "");
                 if (sinonimosDB[ultima]) {
                     falar(`Sinônimos de ${ultima}: ${sinonimosDB[ultima].join(", ")}`);
                 } else {
-                    falar("Não encontrei sinônimo para " + ultima);
+                    falar("Não encontrei sinônimos para " + ultima);
                 }
-            } else if (comando.includes("salvar")) {
+            }
+            else if (comando.includes("salvar")) {
                 const blob = new Blob([campo.value], {type: 'text/plain'});
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
                 a.download = 'historia.txt';
                 a.click();
-                falar("História salva.");
+                falar("Arquivo salvo com sucesso.");
             }
         };
 
-        // Reinício inteligente: só reinicia se o sistema parar de verdade, com um pequeno atraso
-        recognition.onend = () => {
-            console.log("O reconhecimento parou. Reiniciando em 1 segundo...");
-            setTimeout(() => {
-                try { recognition.start(); } catch(e) {}
-            }, 1000);
-        };
+        recognition.onend = () => { recognition.start(); };
 
-        recognition.onerror = (event) => {
-            console.error("Erro de voz:", event.error);
-            if (event.error === 'not-allowed') {
-                statusVoz.innerText = "ERRO: Microfone bloqueado pelo navegador.";
+        // Gamificação
+        let meta = 0;
+        campo.addEventListener('input', () => {
+            const total = campo.value.trim().split(/\s+/).filter(p => p.length > 0).length;
+            if (total > 0 && total % 10 === 0 && total !== meta) {
+                meta = total;
+                falar(`Parabéns! Você já escreveu ${total} palavras!`);
             }
-        };
+        });
     </script>
 </body>
 </html>
