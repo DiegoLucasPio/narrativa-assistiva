@@ -2,53 +2,49 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Inclusiva - Versão Final</title>
+    <title>Narrativa Inclusiva - Versão Ultra Estável</title>
     <style>
-        :root { --primary: #007bff; --success: #28a745; --bg: #f4f4f9; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); text-align: center; padding: 20px; color: #333; }
-        
-        .quadros { display: flex; justify-content: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
-        .cena { width: 280px; background: white; border: 3px solid #ddd; border-radius: 12px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; margin-bottom: 10px; }
-        .desc-texto { font-size: 0.9rem; color: #555; text-align: left; min-height: 60px; border-top: 1px solid #eee; pt: 10px; }
-
-        textarea { width: 90%; max-width: 900px; height: 200px; font-size: 1.6rem; padding: 20px; border-radius: 12px; border: 4px solid var(--primary); margin: 20px 0; }
-        
-        #btnStart { background: var(--primary); color: white; padding: 20px 40px; font-size: 1.4rem; border: none; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,123,255,0.3); }
+        :root { --primary: #0056b3; --success: #28a745; --bg: #f8f9fa; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); text-align: center; padding: 20px; color: #333; }
+        .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .cena { width: 250px; background: white; border: 2px solid #ddd; border-radius: 10px; padding: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .cena img { width: 100%; height: 150px; object-fit: cover; border-radius: 6px; }
+        .desc-texto { font-size: 0.85rem; color: #444; margin-top: 8px; text-align: left; line-height: 1.4; }
+        textarea { width: 90%; max-width: 800px; height: 180px; font-size: 1.5rem; padding: 15px; border-radius: 10px; border: 3px solid var(--primary); margin: 15px 0; }
+        #btnStart { background: var(--primary); color: white; padding: 18px 35px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; transition: 0.3s; }
         #btnStart.ativo { background: var(--success); }
-
-        .feedback-voz { font-weight: bold; color: var(--primary); margin: 15px; font-size: 1.2rem; min-height: 1.5em; }
-        .instrucoes-painel { background: #fff; padding: 20px; border-radius: 10px; display: inline-block; border: 1px solid #ccc; margin-top: 20px; }
-        .comando { color: var(--primary); font-weight: bold; }
+        .feedback-voz { font-weight: bold; color: #d63384; margin: 10px; font-size: 1.1rem; background: #fff0f6; display: inline-block; padding: 5px 15px; border-radius: 20px; border: 1px solid #ffdeeb; }
+        .instrucoes-painel { background: #fff; padding: 15px; border-radius: 10px; border: 1px solid #dee2e6; margin-top: 20px; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .comando { color: var(--primary); font-weight: bold; background: #e7f1ff; padding: 2px 6px; border-radius: 4px; }
     </style>
 </head>
 <body>
 
-    <button id="btnStart">ATIVAR SISTEMA E MICROFONE</button>
-    <div id="statusVoz" class="feedback-voz">Aguardando ativação...</div>
+    <button id="btnStart">1. CLIQUE AQUI PARA ATIVAR</button>
+    <br>
+    <div id="statusVoz" class="feedback-voz">Sistema desligado.</div>
 
     <div class="quadros">
         <div class="cena">
-            <img src="https://picsum.photos/seed/forest1/400/300" alt="Cena 1">
-            <div class="desc-texto"><strong>Cena 1:</strong> Uma floresta mágica com árvores azuis e raios de sol entre as folhas.</div>
+            <img src="https://picsum.photos/seed/forest7/400/300" alt="Cena 1">
+            <div class="desc-texto"><strong>Cena 1:</strong> Floresta mágica com árvores azuis.</div>
         </div>
         <div class="cena">
-            <img src="https://picsum.photos/seed/chest2/400/300" alt="Cena 2">
-            <div class="desc-texto"><strong>Cena 2:</strong> Um baú de madeira velha escondido atrás de uma cachoeira.</div>
+            <img src="https://picsum.photos/seed/chest7/400/300" alt="Cena 2">
+            <div class="desc-texto"><strong>Cena 2:</strong> Baú antigo atrás da cachoeira.</div>
         </div>
         <div class="cena">
-            <img src="https://picsum.photos/seed/boy3/400/300" alt="Cena 3">
-            <div class="desc-texto"><strong>Cena 3:</strong> Um menino explorador encontrando o baú e sorrindo.</div>
+            <img src="https://picsum.photos/seed/boy7/400/300" alt="Cena 3">
+            <div class="desc-texto"><strong>Cena 3:</strong> Menino explorador abre o baú.</div>
         </div>
     </div>
 
-    <textarea id="campoTexto" placeholder="Escreva sua história aqui..."></textarea>
+    <textarea id="campoTexto" placeholder="Escreva aqui..."></textarea>
 
     <div class="instrucoes-painel">
-        <h3>Comandos de Voz:</h3>
-        <p><span class="comando">"Descrever tudo"</span> ou <span class="comando">"Descrever cena 1, 2 ou 3"</span></p>
-        <p><span class="comando">"Leitura"</span> (Lê seu texto) | <span class="comando">"Sinônimo"</span> (Dá opções para a última palavra)</p>
-        <p><span class="comando">"Salvar"</span> (Gera arquivo .txt)</p>
+        <strong>Comandos que o sistema entende:</strong><br><br>
+        <span class="comando">Descrever cena 1</span> | <span class="comando">Descrever tudo</span> | 
+        <span class="comando">Leitura</span> | <span class="comando">Sinônimo</span> | <span class="comando">Salvar</span>
     </div>
 
     <script>
@@ -58,15 +54,15 @@
         const synth = window.speechSynthesis;
 
         const descricoes = {
-            1: "Cena 1: Uma floresta mágica com árvores azuis e raios de sol entre as folhas.",
+            1: "Cena 1: Uma floresta mágica com árvores azuis e raios de sol.",
             2: "Cena 2: Um baú de madeira velha escondido atrás de uma cachoeira.",
             3: "Cena 3: Um menino explorador encontrando o baú e sorrindo."
         };
 
         const sinonimosDB = {
-            "feliz": ["alegre", "contente", "satisfeito", "radiante"],
+            "feliz": ["alegre", "contente", "satisfeito"],
             "floresta": ["mata", "selva", "bosque"],
-            "encontrar": ["achar", "descobrir", "localizar"]
+            "olhar": ["ver", "observar", "contemplar"]
         };
 
         function falar(texto) {
@@ -76,53 +72,73 @@
             synth.speak(u);
         }
 
-        const recognition = new (window.webkitSpeechRecognition || window.SpeechRecognition)();
+        // --- CONFIGURAÇÃO DE VOZ REFORMULADA ---
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new Recognition();
+        
         recognition.lang = 'pt-BR';
         recognition.continuous = true;
-        recognition.interimResults = false;
+        recognition.interimResults = true; // Permite captar palavras enquanto você fala
 
         btn.onclick = () => {
-            recognition.start();
-            btn.innerText = "SISTEMA ATIVO";
-            btn.classList.add('ativo');
-            statusVoz.innerText = "Ouvindo agora...";
-            falar("Sistema iniciado. Use o teclado ou dê comandos de voz.");
-            campo.focus();
+            try {
+                recognition.start();
+                btn.innerText = "SISTEMA ATIVO";
+                btn.classList.add('ativo');
+                statusVoz.innerText = "Escutando... Pode falar.";
+                falar("Ativado.");
+                campo.focus();
+            } catch(e) { console.log("Já iniciado"); }
         };
 
         recognition.onresult = (event) => {
-            const comando = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
-            statusVoz.innerText = "Você disse: " + comando;
+            let resultadoFinal = '';
+            for (let i = event.resultIndex; i < event.results.length; ++i) {
+                if (event.results[i].isFinal) {
+                    resultadoFinal = event.results[i][0].transcript.toLowerCase().trim();
+                } else {
+                    // Mostra o que está sendo processado em tempo real
+                    statusVoz.innerText = "Processando: " + event.results[i][0].transcript;
+                }
+            }
 
-            if (comando.includes("descrever")) {
-                if (comando.includes("1") || comando.includes("um")) falar(descricoes[1]);
-                else if (comando.includes("2") || comando.includes("dois")) falar(descricoes[2]);
-                else if (comando.includes("3") || comando.includes("três")) falar(descricoes[3]);
+            if (resultadoFinal !== '') {
+                statusVoz.innerText = "Comando reconhecido: " + resultadoFinal;
+                processarComando(resultadoFinal);
+            }
+        };
+
+        function processarComando(cmd) {
+            if (cmd.includes("descrever")) {
+                if (cmd.includes("1") || cmd.includes("um")) falar(descricoes[1]);
+                else if (cmd.includes("2") || cmd.includes("dois")) falar(descricoes[2]);
+                else if (cmd.includes("3") || cmd.includes("três")) falar(descricoes[3]);
                 else falar(descricoes[1] + descricoes[2] + descricoes[3]);
             } 
-            else if (comando.includes("leitura") || comando.includes("ler")) {
-                falar(campo.value || "O texto está vazio.");
+            else if (cmd.includes("leitura") || cmd.includes("ler")) {
+                falar(campo.value || "Nada escrito.");
             }
-            else if (comando.includes("sinônimo")) {
+            else if (cmd.includes("sinônimo")) {
                 const palavras = campo.value.trim().split(/\s+/);
                 const ultima = palavras[palavras.length - 1]?.toLowerCase().replace(/[.,!]/g, "");
                 if (sinonimosDB[ultima]) {
                     falar(`Sinônimos de ${ultima}: ${sinonimosDB[ultima].join(", ")}`);
                 } else {
-                    falar("Não encontrei sinônimos para " + ultima);
+                    falar("Não encontrei sinônimo.");
                 }
             }
-            else if (comando.includes("salvar")) {
+            else if (cmd.includes("salvar")) {
                 const blob = new Blob([campo.value], {type: 'text/plain'});
                 const a = document.createElement('a');
                 a.href = URL.createObjectURL(blob);
                 a.download = 'historia.txt';
                 a.click();
-                falar("Arquivo salvo com sucesso.");
+                falar("Salvo.");
             }
-        };
+        }
 
-        recognition.onend = () => { recognition.start(); };
+        // Reinício automático em caso de silêncio longo
+        recognition.onend = () => { if(btn.classList.contains('ativo')) recognition.start(); };
 
         // Gamificação
         let meta = 0;
@@ -130,7 +146,7 @@
             const total = campo.value.trim().split(/\s+/).filter(p => p.length > 0).length;
             if (total > 0 && total % 10 === 0 && total !== meta) {
                 meta = total;
-                falar(`Parabéns! Você já escreveu ${total} palavras!`);
+                falar(`Muito bem! ${total} palavras!`);
             }
         });
     </script>
