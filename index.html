@@ -2,43 +2,46 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Estável</title>
+    <title>Narrativa Inclusiva - Estabilizada</title>
     <style>
-        body { font-family: sans-serif; background: #f8f9fa; text-align: center; padding: 20px; }
-        #statusVoz { font-weight: bold; padding: 15px; margin: 10px; border-radius: 10px; background: white; border: 2px solid #007bff; display: inline-block; }
-        .instrucoes { color: #666; font-size: 0.9rem; margin-top: 10px; }
-        textarea { width: 90%; height: 200px; font-size: 1.4rem; padding: 15px; margin-top: 20px; border: 3px solid #007bff; border-radius: 8px; }
+        body { font-family: sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
         .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .cena { width: 200px; background: white; border: 1px solid #ccc; padding: 5px; border-radius: 8px; }
-        .cena img { width: 100%; height: 120px; object-fit: cover; }
+        .cena { width: 220px; background: white; border: 2px solid #ccc; border-radius: 8px; padding: 10px; }
+        .cena img { width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
+        textarea { width: 85%; height: 180px; font-size: 1.5rem; padding: 15px; border: 3px solid #007bff; border-radius: 10px; }
+        #btnStart { background: #ce1212; color: white; padding: 20px 40px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; margin-bottom: 15px; }
+        #btnStart.ativo { background: #28a745; }
+        #statusVoz { font-weight: bold; color: #333; margin: 15px; padding: 10px; background: #fff; border: 2px solid #ddd; border-radius: 20px; min-height: 25px; }
+        .instrucoes { color: #666; font-size: 0.9rem; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-    <button id="btnStart" style="padding: 15px 30px; font-size: 1.2rem; cursor: pointer; background: #007bff; color: white; border: none; border-radius: 5px;">ATIVAR SISTEMA</button>
-    <br>
-    <div id="statusVoz">Aguardando ativação...</div>
+    <button id="btnStart">1. CLIQUE PARA LIGAR</button>
+    <div id="statusVoz">Sistema desligado</div>
 
     <div class="quadros">
-        <div class="cena"><img src="https://picsum.photos/seed/f1/300/200"><div>Cena 1</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/f2/300/200"><div>Cena 2</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/f3/300/200"><div>Cena 3</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/10/300/200"><div>Cena 1</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/20/300/200"><div>Cena 2</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/30/300/200"><div>Cena 3</div></div>
     </div>
 
-    <textarea id="campo" placeholder="Escreva sua história aqui..."></textarea>
+    <textarea id="campo" placeholder="Aguardando ativação..."></textarea>
 
-    <div class="instrucoes">Comandos: Descrever, Leitura, Sinônimo, Salvar.</div>
+    <div class="instrucoes">Comandos: <b>Descrever, Leitura, Sinônimo, Salvar.</b></div>
 
     <script>
-        const status = document.getElementById('statusVoz');
-        const campo = document.getElementById('campo');
         const btn = document.getElementById('btnStart');
+        const statusVoz = document.getElementById('statusVoz');
+        const campo = document.getElementById('campo');
         const synth = window.speechSynthesis;
 
+        // Configurações de Voz
         const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const rec = new Recognition();
         rec.lang = 'pt-BR';
-        rec.continuous = false; // "false" evita o erro 'aborted' em muitas redes
+        rec.continuous = false; // Importante para evitar loop de 'aborted'
+        rec.interimResults = false;
 
         function falar(t) {
             synth.cancel();
@@ -47,48 +50,56 @@
             synth.speak(u);
         }
 
-        btn.onclick = () => {
-            btn.style.background = "#28a745";
-            btn.innerText = "SISTEMA ATIVO";
-            falar("Sistema iniciado.");
-            try { rec.start(); } catch(e) {}
+        btn.onclick = async () => {
+            if (btn.classList.contains('ativo')) return;
+
+            // Solicita microfone com configurações para evitar oscilação de volume
+            try {
+                await navigator.mediaDevices.getUserMedia({ 
+                    audio: { echoCancellation: true, autoGainControl: false, noiseSuppression: true } 
+                });
+                
+                btn.classList.add('ativo');
+                btn.innerText = "SISTEMA LIGADO";
+                statusVoz.innerText = "Escutando...";
+                falar("Sistema ligado.");
+                campo.focus();
+                rec.start();
+            } catch (err) {
+                statusVoz.innerText = "Erro ao acessar microfone.";
+            }
         };
 
-        rec.onstart = () => { status.innerText = "OUVINDO..."; };
-        
         rec.onresult = (event) => {
-            const fala = event.results[0][0].transcript.toLowerCase();
-            status.innerText = "OUVI: " + fala;
+            const comando = event.results[0][0].transcript.toLowerCase().trim();
+            statusVoz.innerText = "Ouvi: " + comando;
             
-            if (fala.includes("descrever")) {
-                falar("Cena 1: Floresta azul. Cena 2: Baú antigo. Cena 3: Menino sorrindo.");
-            } else if (fala.includes("leitura")) {
-                falar(campo.value || "Nada escrito.");
-            } else if (fala.includes("sinônimo")) {
-                const p = campo.value.trim().split(/\s+/);
-                const u = p[p.length-1].toLowerCase().replace(/[.,!]/g, "");
-                const db = {"feliz": ["alegre", "contente"], "olhar": ["ver", "observar"]};
-                falar(db[u] ? `Sinônimos de ${u}: ${db[u].join(", ")}` : "Não encontrei sinônimos.");
-            } else if (fala.includes("salvar")) {
+            if (comando.includes("descrever")) {
+                falar("Cena 1: Floresta. Cena 2: Baú. Cena 3: Menino.");
+            } else if (comando.includes("leitura")) {
+                falar(campo.value || "Texto vazio.");
+            } else if (comando.includes("salvar")) {
                 const blob = new Blob([campo.value], {type: 'text/plain'});
                 const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'historia.txt';
-                a.click();
-                falar("História salva.");
+                a.href = URL.createObjectURL(blob); a.download = 'historia.txt'; a.click();
+                falar("Salvo.");
             }
         };
 
-        // Reinício automático sem causar o erro 'aborted'
+        rec.onerror = (event) => {
+            console.log("Erro capturado:", event.error);
+            if (event.error === 'aborted') {
+                statusVoz.innerText = "Aguardando silêncio...";
+            }
+        };
+
         rec.onend = () => {
-            if (btn.innerText === "SISTEMA ATIVO") {
-                setTimeout(() => { try { rec.start(); } catch(e) {} }, 100);
+            // Reinicia com um atraso de 2 segundos para evitar o loop infinito de reinicialização
+            if (btn.classList.contains('ativo')) {
+                setTimeout(() => {
+                    try { rec.start(); statusVoz.innerText = "Escutando..."; } catch(e) {}
+                }, 2000);
             }
-        };
-
-        rec.onerror = (e) => {
-            console.log("Erro: " + e.error);
-            if (e.error === 'aborted') status.innerText = "Reconectando microfone...";
         };
     </script>
 </body>
