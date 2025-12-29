@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Narrativa Assistiva - Estável</title>
+    <style>
+        body { font-family: sans-serif; background: #121212; color: white; text-align: center; padding: 20px; }
+        .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .cena { width: 200px; padding: 10px; background: #1e1e1e; border: 2px solid #333; border-radius: 10px; }
+        .cena img { width: 100%; height: 120px; object-fit: cover; border-radius: 5px; }
+        textarea { width: 80%; height: 180px; font-size: 1.4rem; padding: 15px; border-radius: 10px; border: 4px solid #4caf50; background: white; color: black; }
+        #btnStart { background: #ce1212; color: white; padding: 15px 30px; font-size: 1.2rem; border: none; border-radius: 8px; cursor: pointer; }
+        .status { margin: 10px; color: #ffcc00; font-weight: bold; height: 24px; }
+    </style>
+</head>
+<body>
+
+    <h1>Escrita Criativa</h1>
+    
+    <button id="btnStart">ATIVAR MICROFONE (Clique apenas uma vez)</button>
+    <div id="statusVoz" class="status">Sistema Desligado</div>
+
+    <div class="quadros">
+        <div class="cena"><img src="https://picsum.photos/seed/1/200/120"><div>Cena 1</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/2/200/120"><div>Cena 2</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/3/200/120"><div>Cena 3</div></div>
+    </div>
+
+    <textarea id="campo" placeholder="Clique no botão acima para começar..."></textarea>
+
+    <script>
+        const btn = document.getElementById('btnStart');
+        const statusVoz = document.getElementById('statusVoz');
+        const campo = document.getElementById('campo');
+        const synth = window.speechSynthesis;
+
+        // Banco de sinônimos corrigido
+        const sinonimosDB = {
+            "feliz": ["alegre", "contente", "radiante"],
+            "grande": ["enorme", "gigante", "amplo"],
+            "olhar": ["ver", "observar", "contemplar"]
+        };
+
+        function falar(texto) {
+            synth.cancel();
+            const u = new SpeechSynthesisUtterance(texto);
+            u.lang = 'pt-BR';
+            synth.speak(u);
+        }
+
+        // Inicialização do reconhecimento
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!Recognition) {
+            alert("Seu navegador não suporta reconhecimento de voz. Tente o Google Chrome.");
+        }
+
+        const recognition = new Recognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = true; // Mantém o microfone aberto por mais tempo
+        recognition.interimResults = false;
+
+        btn.onclick = () => {
+            try {
+                recognition.start();
+                btn.style.display = 'none';
+                statusVoz.innerText = "OUVINDO COMANDOS...";
+                falar("Sistema iniciado. O cursor está no campo de texto.");
+                campo.focus();
+            } catch (e) {
+                console.log("Reconhecimento já estava ativo.");
+            }
+        };
+
+        recognition.onresult = (event) => {
+            const comando = event.results[event.results.length - 1][0].transcript.trim().toLowerCase();
+            console.log("Comando recebido:", comando);
+
+            if (comando.includes("descrever")) {
+                falar("Cena 1: Uma floresta. Cena 2: Um baú. Cena 3: Um menino sorrindo.");
+            } else if (comando.includes("leitura")) {
+                falar(campo.value || "Nada escrito.");
+            } else if (comando.includes("sinônimo")) {
+                const palavras = campo.value.trim().split(/\s+/);
+                const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!]/g, "");
+                if (sinonimosDB[ultima]) {
+                    falar(`Sinônimos de ${ultima}: ${sinonimosDB[ultima].join(", ")}`);
+                } else {
+                    falar("Não encontrei sinônimo para " + ultima);
+                }
+            } else if (comando.includes("salvar")) {
+                const blob = new Blob([campo.value], {type: 'text/plain'});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'historia.txt';
+                a.click();
+                falar("História salva.");
+            }
+        };
+
+        // Reinício inteligente: só reinicia se o sistema parar de verdade, com um pequeno atraso
+        recognition.onend = () => {
+            console.log("O reconhecimento parou. Reiniciando em 1 segundo...");
+            setTimeout(() => {
+                try { recognition.start(); } catch(e) {}
+            }, 1000);
+        };
+
+        recognition.onerror = (event) => {
+            console.error("Erro de voz:", event.error);
+            if (event.error === 'not-allowed') {
+                statusVoz.innerText = "ERRO: Microfone bloqueado pelo navegador.";
+            }
+        };
+    </script>
+</body>
+</html>
