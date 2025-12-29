@@ -2,136 +2,80 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Estabilizada</title>
+    <title>Teste de Voz - Narrativa</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
-        .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .cena { width: 220px; background: white; border: 2px solid #ccc; border-radius: 8px; padding: 10px; }
-        .cena img { width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
-        textarea { width: 85%; height: 180px; font-size: 1.5rem; padding: 15px; border: 3px solid #007bff; border-radius: 10px; margin-bottom: 20px; }
-        #btnStart { background: #007bff; color: white; padding: 20px 40px; font-size: 1.2rem; border: none; border-radius: 50px; cursor: pointer; }
-        #btnStart.ativo { background: #28a745; }
-        #statusVoz { font-weight: bold; color: #d63384; margin: 15px; min-height: 1.5em; background: #fff; display: inline-block; padding: 10px 20px; border-radius: 30px; border: 2px solid #ffdeeb; }
-        .instrucoes { color: #555; font-size: 0.9rem; }
+        body { font-family: sans-serif; background: #eef2f3; text-align: center; padding: 20px; }
+        #btnStart { background: #ce1212; color: white; padding: 20px 40px; font-size: 1.5rem; border: none; border-radius: 50px; cursor: pointer; }
+        #statusVoz { font-weight: bold; color: #333; margin: 20px; padding: 15px; background: white; border: 2px dashed #007bff; display: inline-block; min-width: 300px; }
+        .log-erro { color: red; font-size: 0.8rem; margin-top: 10px; }
+        textarea { width: 80%; height: 150px; margin-top: 20px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <button id="btnStart">CLIQUE PARA ATIVAR SISTEMA</button>
+    <button id="btnStart">ATIVAR MICROFONE</button>
     <br>
-    <div id="statusVoz">Aguardando ativação...</div>
+    <div id="statusVoz">Clique no botão para iniciar</div>
+    <div id="logErro" class="log-erro"></div>
 
-    <div class="quadros">
-        <div class="cena"><img src="https://picsum.photos/seed/1/300/200"><div><strong>Cena 1:</strong> Floresta</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/2/300/200"><div><strong>Cena 2:</strong> Baú</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/3/300/200"><div><strong>Cena 3:</strong> Menino</div></div>
-    </div>
-
-    <textarea id="campo" placeholder="Escreva aqui..."></textarea>
-
-    <div class="instrucoes">
-        Diga pausadamente: <strong>"Descrever"</strong>, <strong>"Leitura"</strong>, <strong>"Sinônimo"</strong> ou <strong>"Salvar"</strong>.
-    </div>
+    <br>
+    <textarea id="campo"></textarea>
 
     <script>
-        const btn = document.getElementById('btnStart');
         const statusVoz = document.getElementById('statusVoz');
-        const campo = document.getElementById('campo');
+        const logErro = document.getElementById('logErro');
+        const btn = document.getElementById('btnStart');
         const synth = window.speechSynthesis;
 
-        const descricoes = {
-            1: "Cena 1: Uma floresta mágica com árvores azuis.",
-            2: "Cena 2: Um baú de madeira velha atrás da cachoeira.",
-            3: "Cena 3: Um menino explorador encontrando o baú."
-        };
-
-        const sinonimosDB = {
-            "feliz": ["alegre", "contente"],
-            "floresta": ["mata", "selva"],
-            "olhar": ["ver", "observar"]
-        };
-
-        function falar(texto) {
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(texto);
-            u.lang = 'pt-BR';
-            synth.speak(u);
+        // Tenta capturar a API de reconhecimento
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        if (!Recognition) {
+            statusVoz.innerText = "ERRO: Seu navegador não suporta voz.";
         }
 
-        // --- RECONHECIMENTO COM REINÍCIO FORÇADO ---
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         const recognition = new Recognition();
-        
         recognition.lang = 'pt-BR';
-        recognition.continuous = false; // Mudar para false força o navegador a processar a frase rápido
+        recognition.continuous = false;
         recognition.interimResults = false;
 
         btn.onclick = () => {
-            btn.classList.add('ativo');
-            btn.innerText = "SISTEMA LIGADO";
-            recognition.start();
-            statusVoz.innerText = "Escutando...";
-            falar("Sistema pronto.");
-            campo.focus();
+            try {
+                recognition.start();
+                statusVoz.innerText = "ESCUTANDO AGORA... FALE ALGO!";
+                btn.style.background = "#28a745";
+                btn.innerText = "MICROFONE LIGADO";
+            } catch (e) {
+                logErro.innerText = "Erro ao iniciar: " + e.message;
+            }
         };
 
         recognition.onresult = (event) => {
-            const comando = event.results[0][0].transcript.toLowerCase().trim();
-            statusVoz.innerText = "Ouvi: " + comando;
-            processarComando(comando);
-        };
-
-        // Esta função garante que o microfone reabra assim que terminar de processar uma frase
-        recognition.onend = () => {
-            if (btn.classList.contains('ativo')) {
-                recognition.start();
-                statusVoz.innerText = "Escutando novamente...";
+            const fala = event.results[0][0].transcript;
+            statusVoz.innerText = "EU OUVI: " + fala;
+            
+            // Lógica simples de comando
+            if (fala.toLowerCase().includes("descrever")) {
+                const u = new SpeechSynthesisUtterance("Vou descrever as cenas para você.");
+                u.lang = 'pt-BR';
+                synth.speak(u);
             }
         };
 
         recognition.onerror = (event) => {
-            console.log("Erro de voz: " + event.error);
-            if (event.error === 'network') statusVoz.innerText = "Erro de rede. Verifique a internet.";
+            logErro.innerText = "Erro do Sistema: " + event.error;
+            // Se o erro for 'no-speech', apenas reinicia
+            if (event.error === 'no-speech') {
+                setTimeout(() => recognition.start(), 1000);
+            }
         };
 
-        function processarComando(cmd) {
-            if (cmd.includes("descrever")) {
-                if (cmd.includes("1") || cmd.includes("um")) falar(descricoes[1]);
-                else if (cmd.includes("2") || cmd.includes("dois")) falar(descricoes[2]);
-                else if (cmd.includes("3") || cmd.includes("três")) falar(descricoes[3]);
-                else falar(descricoes[1] + ". " + descricoes[2] + ". " + descricoes[3]);
-            } 
-            else if (cmd.includes("leitura") || cmd.includes("ler")) {
-                falar(campo.value || "O texto está vazio.");
+        recognition.onend = () => {
+            // Reinicia sempre que parar
+            if (btn.innerText === "MICROFONE LIGADO") {
+                recognition.start();
             }
-            else if (cmd.includes("sinônimo")) {
-                const palavras = campo.value.trim().split(/\s+/);
-                const ultima = palavras[palavras.length - 1]?.toLowerCase().replace(/[.,!]/g, "");
-                if (sinonimosDB[ultima]) {
-                    falar(`Sinônimos de ${ultima}: ${sinonimosDB[ultima].join(", ")}`);
-                } else {
-                    falar("Não encontrei sinônimo para " + ultima);
-                }
-            }
-            else if (cmd.includes("salvar")) {
-                const blob = new Blob([campo.value], {type: 'text/plain'});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'historia.txt';
-                a.click();
-                falar("História salva.");
-            }
-        }
-
-        // Gamificação (10 em 10 palavras)
-        let meta = 0;
-        campo.addEventListener('input', () => {
-            const total = campo.value.trim().split(/\s+/).filter(p => p.length > 0).length;
-            if (total > 0 && total % 10 === 0 && total !== meta) {
-                meta = total;
-                falar(`${total} palavras escritas. Muito bem!`);
-            }
-        });
+        };
     </script>
 </body>
 </html>
