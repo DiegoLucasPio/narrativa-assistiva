@@ -1,80 +1,95 @@
 <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Teste de Voz - Narrativa</title>
+    <title>Diagnóstico de Voz</title>
     <style>
-        body { font-family: sans-serif; background: #eef2f3; text-align: center; padding: 20px; }
-        #btnStart { background: #ce1212; color: white; padding: 20px 40px; font-size: 1.5rem; border: none; border-radius: 50px; cursor: pointer; }
-        #statusVoz { font-weight: bold; color: #333; margin: 20px; padding: 15px; background: white; border: 2px dashed #007bff; display: inline-block; min-width: 300px; }
-        .log-erro { color: red; font-size: 0.8rem; margin-top: 10px; }
-        textarea { width: 80%; height: 150px; margin-top: 20px; font-size: 1.2rem; }
+        body { font-family: sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
+        #status { font-weight: bold; font-size: 1.2rem; color: #007bff; margin-bottom: 10px; }
+        #medidor { width: 300px; height: 20px; background: #ddd; margin: 10px auto; border-radius: 10px; overflow: hidden; }
+        #barra { width: 0%; height: 100%; background: #28a745; transition: width 0.1s; }
+        textarea { width: 80%; height: 100px; margin-top: 20px; }
+        .log { font-family: monospace; font-size: 0.8rem; color: #666; background: #eee; padding: 10px; margin-top: 20px; text-align: left; }
     </style>
 </head>
 <body>
 
-    <button id="btnStart">ATIVAR MICROFONE</button>
-    <br>
-    <div id="statusVoz">Clique no botão para iniciar</div>
-    <div id="logErro" class="log-erro"></div>
+    <h2>Diagnóstico de Sistema</h2>
+    <button id="btn" style="padding: 15px 30px; font-size: 1.2rem;">ATIVAR SISTEMA</button>
+    
+    <div id="status">Aguardando...</div>
+    
+    <p>Volume do Microfone:</p>
+    <div id="medidor"><div id="barra"></div></div>
 
-    <br>
-    <textarea id="campo"></textarea>
+    <textarea id="campo" placeholder="Texto aparecerá aqui..."></textarea>
+    
+    <div id="debug" class="log">Log de eventos:</div>
 
     <script>
-        const statusVoz = document.getElementById('statusVoz');
-        const logErro = document.getElementById('logErro');
-        const btn = document.getElementById('btnStart');
-        const synth = window.speechSynthesis;
+        const btn = document.getElementById('btn');
+        const barra = document.getElementById('barra');
+        const debug = document.getElementById('debug');
+        const status = document.getElementById('status');
+        const campo = document.getElementById('campo');
 
-        // Tenta capturar a API de reconhecimento
-        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        
-        if (!Recognition) {
-            statusVoz.innerText = "ERRO: Seu navegador não suporta voz.";
+        function addLog(msg) {
+            debug.innerHTML += "<br>> " + msg;
+            console.log(msg);
         }
 
-        const recognition = new Recognition();
-        recognition.lang = 'pt-BR';
-        recognition.continuous = false;
-        recognition.interimResults = false;
+        const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const rec = new Recognition();
+        rec.lang = 'pt-BR';
+        rec.continuous = true;
+        rec.interimResults = true;
 
-        btn.onclick = () => {
-            try {
-                recognition.start();
-                statusVoz.innerText = "ESCUTANDO AGORA... FALE ALGO!";
-                btn.style.background = "#28a745";
-                btn.innerText = "MICROFONE LIGADO";
-            } catch (e) {
-                logErro.innerText = "Erro ao iniciar: " + e.message;
-            }
-        };
-
-        recognition.onresult = (event) => {
-            const fala = event.results[0][0].transcript;
-            statusVoz.innerText = "EU OUVI: " + fala;
+        btn.onclick = async () => {
+            addLog("Iniciando microfone...");
+            rec.start();
             
-            // Lógica simples de comando
-            if (fala.toLowerCase().includes("descrever")) {
-                const u = new SpeechSynthesisUtterance("Vou descrever as cenas para você.");
-                u.lang = 'pt-BR';
-                synth.speak(u);
+            // Ativa medidor de volume real para testar hardware
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const audioContext = new AudioContext();
+                const analyser = audioContext.createAnalyser();
+                const microphone = audioContext.createMediaStreamSource(stream);
+                const javascriptNode = audioContext.createScriptProcessor(2048, 1, 1);
+
+                analyser.smoothingTimeConstant = 0.8;
+                analyser.fftSize = 1024;
+                microphone.connect(analyser);
+                analyser.connect(javascriptNode);
+                javascriptNode.connect(audioContext.destination);
+
+                javascriptNode.onaudioprocess = () => {
+                    const array = new Uint8Array(analyser.frequencyBinCount);
+                    analyser.getByteFrequencyData(array);
+                    let values = 0;
+                    for (let i = 0; i < array.length; i++) values += array[i];
+                    const average = values / array.length;
+                    barra.style.width = Math.min(average * 2, 100) + "%";
+                };
+                addLog("Hardware de áudio detectado com sucesso.");
+            } catch (err) {
+                addLog("ERRO DE HARDWARE: " + err.message);
             }
         };
 
-        recognition.onerror = (event) => {
-            logErro.innerText = "Erro do Sistema: " + event.error;
-            // Se o erro for 'no-speech', apenas reinicia
-            if (event.error === 'no-speech') {
-                setTimeout(() => recognition.start(), 1000);
+        rec.onresult = (event) => {
+            const fala = event.results[event.results.length - 1][0].transcript;
+            status.innerText = "OUVI: " + fala;
+            addLog("Texto detectado: " + fala);
+            if(fala.toLowerCase().includes("leitura")) {
+                window.speechSynthesis.speak(new SpeechSynthesisUtterance("Lendo seu texto"));
             }
         };
 
-        recognition.onend = () => {
-            // Reinicia sempre que parar
-            if (btn.innerText === "MICROFONE LIGADO") {
-                recognition.start();
-            }
+        rec.onerror = (e) => addLog("Erro de Reconhecimento: " + e.error);
+        rec.onend = () => {
+            addLog("Reiniciando escuta...");
+            rec.start();
         };
     </script>
 </body>
