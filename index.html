@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Inclusiva - Assistente Robusto</title>
+    <title>Narrativa Assistiva - Revisor Proativo</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; text-align: center; padding: 10px; }
         .painel { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -14,13 +14,13 @@
         .cena img { width: 100%; height: 140px; object-fit: cover; border-radius: 8px; }
         
         textarea { width: 90%; height: 200px; font-size: 1.7rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; margin-top: 10px; outline: none; }
-        #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #3498db; min-height: 1.5em; }
-        .sugestao-ativa { background: #fff3cd !important; color: #856404 !important; border-color: #ffeeba !important; }
+        #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #3498db; min-height: 1.5em; transition: 0.3s; }
+        .alerta { background: #fff3cd !important; border-color: #ffc107 !important; color: #856404 !important; transform: scale(1.05); }
     </style>
 </head>
 <body>
 
-    <div id="status">Escreva sua aventura...</div>
+    <div id="status">Escreva sua história...</div>
 
     <div class="painel">
         <button class="btn btn-v" onclick="ativarVoz()">🎤 VOZ</button>
@@ -31,12 +31,12 @@
     </div>
 
     <div class="quadros">
-        <div class="cena"><img src="https://images.unsplash.com/photo-1519074063912-ad25b5ce4970?w=400"><strong>1. O Início</strong></div>
-        <div class="cena"><img src="https://images.unsplash.com/photo-1444076784383-69fc7bad9006?w=400"><strong>2. O Meio</strong></div>
-        <div class="cena"><img src="https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400"><strong>3. O Fim</strong></div>
+        <div class="cena"><img src="https://images.unsplash.com/photo-1519074063912-ad25b5ce4970?w=400"><strong>1. O Mapa</strong></div>
+        <div class="cena"><img src="https://images.unsplash.com/photo-1444076784383-69fc7bad9006?w=400"><strong>2. A Ponte</strong></div>
+        <div class="cena"><img src="https://images.unsplash.com/photo-1509114397022-ed747cca3f65?w=400"><strong>3. O Tesouro</strong></div>
     </div>
 
-    <textarea id="txt" placeholder="Dica: Comece com letra maiúscula!"></textarea>
+    <textarea id="txt" placeholder="Dica: Use pontos e letras maiúsculas!"></textarea>
 
     <script>
         const campo = document.getElementById('txt');
@@ -46,74 +46,79 @@
         const dic = {
             "olhar": ["ver", "observar", "enxergar"], "feliz": ["alegre", "contente"], 
             "grande": ["enorme", "gigante"], "casa": ["lar", "moradia"],
-            "mapa": ["guia", "pergaminho"], "ponte": ["travessia", "passarela"]
+            "mapa": ["guia", "pergaminho"], "ponte": ["travessia", "passarela"],
+            "medo": ["receio", "temor"], "achar": ["encontrar", "descobrir"]
         };
 
-        function tocarBipe(tipo = "suave") {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(tipo === "alerta" ? 440 : 587, context.currentTime);
-            gain.gain.setValueAtTime(0.05, context.currentTime);
-            osc.connect(gain); gain.connect(context.destination);
-            osc.start(); osc.stop(context.currentTime + 0.1);
+        function tocarBipe(frequencia = 587) {
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = context.createOscillator();
+                const gain = context.createGain();
+                osc.type = "sine";
+                osc.frequency.setValueAtTime(frequencia, context.currentTime);
+                gain.gain.setValueAtTime(0.05, context.currentTime);
+                osc.connect(gain); gain.connect(context.destination);
+                osc.start(); osc.stop(context.currentTime + 0.1);
+            } catch(e) { console.log("Áudio bloqueado pelo navegador."); }
         }
 
-        function falar(t) {
-            synth.cancel();
-            const u = new SpeechSynthesisUtterance(t);
-            u.lang = 'pt-BR';
-            synth.speak(u);
+        function mostrarAlerta(msg) {
+            status.innerText = "💡 " + msg;
+            status.classList.add('alerta');
+            tocarBipe(440); // Som mais grave para atenção
+            setTimeout(() => status.classList.remove('alerta'), 3000);
         }
 
-        // --- MOTOR DE ASSISTÊNCIA GRAMATICAL ---
         campo.addEventListener('input', () => {
             const texto = campo.value;
+            if (texto.length === 0) return;
+
             const ultChar = texto.slice(-1);
-            
-            // 1. Verificação de Início de Frase (Maiúscula)
-            if (texto.length === 1 && texto === texto.toLowerCase() && texto !== " ") {
-                status.innerText = "💡 Dica: Que tal começar com letra Maiúscula?";
-                status.classList.add('sugestao-ativa');
-                tocarBipe("alerta");
+            const penultChar = texto.slice(-2, -1);
+
+            // 1. Verificação de Início de Frase (Logo na primeira letra)
+            if (texto.length === 1 && texto !== texto.toUpperCase()) {
+                mostrarAlerta("Comece a história com letra Maiúscula!");
             }
 
-            // 2. Verificação ao pressionar Espaço (Vírgulas e Sinônimos)
+            // 2. Verificação após Ponto Final, Exclamação ou Interrogação
+            // Se o usuário digitou uma letra após um sinal de pontuação e um espaço
+            if (penultChar === " " && texto.length > 2) {
+                const charAntesDoEspaco = texto.slice(-3, -2);
+                if ([".", "!", "?", "\n"].includes(charAntesDoEspaco)) {
+                    if (ultChar !== ultChar.toUpperCase() && ultChar !== " ") {
+                        mostrarAlerta("Após o ponto, use letra Maiúscula.");
+                    }
+                }
+            }
+
+            // 3. Sugestão de Vírgula (Conectivos)
             if (ultChar === " ") {
                 const palavras = texto.trim().split(/\s+/);
                 const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!?;]/g, "");
                 
-                // Sugestão de Vírgula antes de conectivos
-                const conectivos = ["mas", "porque", "pois", "porem", "então"];
+                const conectivos = ["mas", "porque", "então", "pois", "porém"];
                 if (conectivos.includes(ultima)) {
-                    status.innerText = `💡 Dica: Quase sempre usamos vírgula antes de "${ultima}".`;
-                    tocarBipe();
+                    mostrarAlerta(`Que tal uma vírgula antes de "${ultima}"?`);
                 }
 
-                // Sinônimos (já existente)
                 if (dic[ultima]) {
-                    status.innerText = `✨ Sinônimo para ${ultima}: aperte F3.`;
-                    tocarBipe();
+                    tocarBipe(880); // Som agudo para "descoberta" de sinônimo
+                    status.innerText = `✨ Sinônimo para "${ultima}" disponível! (F3)`;
                 }
             }
 
-            // 3. Sugestão de Parágrafo (Texto muito longo)
-            const frases = texto.split(/[.!?]/);
+            // 4. Sugestão de Ponto Final (Frase muito longa)
+            const frases = texto.split(/[.!?\n]/);
             const ultimaFrase = frases[frases.length - 1];
-            if (ultimaFrase.length > 150) {
-                status.innerText = "💡 O texto está longo. Que tal um ponto final?";
-                tocarBipe("alerta");
-            }
-
-            // Limpa o status se o usuário começar a corrigir
-            if (ultChar === "\n") {
-                status.innerText = "Novo parágrafo! Muito bem.";
-                status.classList.remove('sugestao-ativa');
+            if (ultimaFrase.length > 120) {
+                mostrarAlerta("Essa frase está longa. Use um ponto final para respirar.");
             }
         });
 
-        // Funções de comando mantidas
+        // Funções de comando
+        function falar(t) { synth.cancel(); const u = new SpeechSynthesisUtterance(t); u.lang='pt-BR'; synth.speak(u); }
         function cmdDescrever() { falar("Cena 1: O mapa. Cena 2: A ponte. Cena 3: O tesouro."); }
         function cmdLer() { falar(campo.value || "Nada escrito."); }
         function cmdSinonimo() {
@@ -121,7 +126,14 @@
             const u = p[p.length - 1]?.toLowerCase().replace(/[.,!?;]/g, "");
             if (dic[u]) { falar(`Para ${u}, use: ${dic[u].join(", ")}`); }
         }
-        function cmdSalvar() { /* ... código de salvar anterior ... */ }
+        function cmdSalvar() {
+            const blob = new Blob([campo.value], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'minha_historia.txt';
+            a.click();
+            falar("História salva.");
+        }
 
         window.onkeydown = (e) => {
             if (e.keyCode === 112) { e.preventDefault(); cmdDescrever(); }
@@ -129,13 +141,10 @@
             if (e.keyCode === 114) { e.preventDefault(); cmdSinonimo(); }
             if (e.keyCode === 115) { e.preventDefault(); cmdSalvar(); }
         };
-        
-        function ativarVoz() { /* Mantido apenas como reserva */
-            const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Rec) return;
-            const r = new Rec(); r.lang = 'pt-BR';
-            r.onresult = (e) => { const f = e.results[0][0].transcript.toLowerCase(); if(f.includes("ler")) cmdLer(); };
-            r.start();
+
+        function ativarVoz() { 
+            // Apenas para manter a interface, já que o serviço do Google está com erro no seu PC
+            status.innerText = "Modo de voz aguardando sistema..."; 
         }
     </script>
 </body>
