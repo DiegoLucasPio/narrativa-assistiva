@@ -2,56 +2,77 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Inclusiva - Versão 100% Funcional</title>
+    <title>Narrativa Inclusiva - Sequência Lógica</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; text-align: center; padding: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; text-align: center; padding: 15px; }
         .painel-botoes { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
         
-        /* Botões Gigantes para facilitar o clique */
         .btn-acao { 
-            padding: 20px; font-size: 1.1rem; font-weight: bold; border: none; 
-            border-radius: 12px; cursor: pointer; color: white; min-width: 150px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.2s;
+            padding: 15px 25px; font-size: 1rem; font-weight: bold; border: none; 
+            border-radius: 12px; cursor: pointer; color: white; transition: 0.2s;
         }
-        .btn-ouvir { background: #e74c3c; } /* Vermelho */
-        .btn-descrever { background: #3498db; } /* Azul */
-        .btn-ler { background: #27ae60; } /* Verde */
-        .btn-salvar { background: #f39c12; } /* Laranja */
-        .btn-acao:active { transform: scale(0.95); }
+        .btn-ouvir { background: #e74c3c; }
+        .btn-descrever { background: #3498db; }
+        .btn-ler { background: #27ae60; }
+        .btn-sinonimo { background: #9b59b6; } /* Roxo para sinônimos */
+        .btn-salvar { background: #f39c12; }
 
-        .quadros { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
-        .cena { width: 180px; background: white; border-radius: 10px; padding: 5px; border: 1px solid #ccc; }
-        .cena img { width: 100%; border-radius: 5px; }
+        .quadros { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
+        .cena { width: 250px; background: white; border-radius: 12px; padding: 10px; border: 3px solid #ddd; }
+        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
+        .cena strong { display: block; margin-top: 10px; color: #2c3e50; }
 
-        textarea { width: 90%; height: 200px; font-size: 1.8rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; }
-        #status { margin: 15px; font-weight: bold; color: #2c3e50; font-size: 1.2rem; }
+        textarea { width: 90%; height: 180px; font-size: 1.6rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; margin-top: 10px; }
+        #status { margin: 10px; font-weight: bold; color: #2c3e50; min-height: 1.5em; }
     </style>
 </head>
 <body>
 
-    <div id="status">Pressione os botões ou use as teclas (F1, F2, F4)</div>
+    <div id="status">Pressione os botões ou use F1, F2, F3 ou F4</div>
 
     <div class="painel-botoes">
-        <button class="btn-acao btn-ouvir" onclick="ativarVoz()">🎤 LIGAR VOZ</button>
-        <button class="btn-acao btn-descrever" onclick="comandoDescrever()">🖼️ DESCREVER (F1)</button>
-        <button class="btn-acao btn-ler" onclick="comandoLer()">📖 LER TEXTO (F2)</button>
+        <button class="btn-acao btn-ouvir" onclick="ativarVoz()">🎤 COMANDO DE VOZ</button>
+        <button class="btn-acao btn-descrever" onclick="comandoDescrever()">🖼️ CENAS (F1)</button>
+        <button class="btn-acao btn-ler" onclick="comandoLer()">📖 LER (F2)</button>
+        <button class="btn-acao btn-sinonimo" onclick="comandoSinonimo()">🔄 SINÔNIMO (F3)</button>
         <button class="btn-acao btn-salvar" onclick="comandoSalvar()">💾 SALVAR (F4)</button>
     </div>
 
     <div class="quadros">
-        <div class="cena"><img src="https://picsum.photos/seed/1/200/150"><div>Cena 1</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/2/200/150"><div>Cena 2</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/3/200/150"><div>Cena 3</div></div>
+        <div class="cena">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=300&q=80" alt="Cena 1">
+            <strong>1. O Começo</strong>
+            <p style="font-size: 0.8rem;">O explorador descobre um mapa antigo na floresta.</p>
+        </div>
+        <div class="cena">
+            <img src="https://images.unsplash.com/photo-1505438531157-f82390885608?auto=format&fit=crop&w=300&q=80" alt="Cena 2">
+            <strong>2. O Desafio</strong>
+            <p style="font-size: 0.8rem;">Ele precisa atravessar uma ponte de corda perigosa.</p>
+        </div>
+        <div class="cena">
+            <img src="https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=300&q=80" alt="Cena 3">
+            <strong>3. A Descoberta</strong>
+            <p style="font-size: 0.8rem;">No final do caminho, ele encontra o templo de ouro.</p>
+        </div>
     </div>
 
-    <textarea id="meuTexto" placeholder="Escreva sua história aqui..."></textarea>
+    <textarea id="meuTexto" placeholder="Comece sua aventura aqui..."></textarea>
 
     <script>
         const campo = document.getElementById('meuTexto');
         const status = document.getElementById('status');
         const synth = window.speechSynthesis;
 
-        // --- FUNÇÕES DE COMANDO ---
+        // BANCO DE SINÔNIMOS
+        const dicionario = {
+            "olhar": ["ver", "enxergar", "observar", "contemplar"],
+            "feliz": ["alegre", "contente", "satisfeito", "radiante"],
+            "grande": ["enorme", "gigante", "imenso"],
+            "medo": ["receio", "temor", "pavor"],
+            "achar": ["encontrar", "localizar", "descobrir"],
+            "casa": ["lar", "moradia", "residência"]
+        };
+
         function falar(t) {
             synth.cancel();
             const u = new SpeechSynthesisUtterance(t);
@@ -60,57 +81,62 @@
         }
 
         function comandoDescrever() {
-            falar("Cena 1: Uma floresta mágica. Cena 2: Um baú escondido. Cena 3: Um menino feliz.");
-            status.innerText = "Descrevendo imagens...";
+            falar("Sequência da história: Cena 1, O explorador descobre um mapa. Cena 2, Ele atravessa uma ponte perigosa. Cena 3, Ele encontra o templo de ouro.");
+            status.innerText = "Descrevendo sequência narrativa...";
         }
 
         function comandoLer() {
-            const t = campo.value || "O campo de texto está vazio.";
-            falar(t);
-            status.innerText = "Lendo sua história...";
+            falar(campo.value || "O texto está vazio.");
+        }
+
+        function comandoSinonimo() {
+            const palavras = campo.value.trim().split(/\s+/);
+            const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!]/g, "");
+            
+            if (dicionario[ultima]) {
+                const opcoes = dicionario[ultima].join(", ");
+                falar(`Para a palavra ${ultima}, você pode usar: ${opcoes}`);
+                status.innerText = `Sugestões para "${ultima}": ${opcoes}`;
+            } else {
+                falar("Ainda não conheço sinônimos para a última palavra.");
+                status.innerText = "Palavra não encontrada no dicionário.";
+            }
         }
 
         function comandoSalvar() {
             const blob = new Blob([campo.value], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'historia.txt';
+            a.download = 'minha_historia.txt';
             a.click();
-            falar("Sua história foi salva no computador.");
+            falar("História salva com sucesso.");
         }
 
-        // --- ATALHOS DE TECLADO (FORÇADOS) ---
+        // TECLADO
         window.onkeydown = function(e) {
-            // F1
             if (e.keyCode === 112) { e.preventDefault(); comandoDescrever(); }
-            // F2
             if (e.keyCode === 113) { e.preventDefault(); comandoLer(); }
-            // F4
+            if (e.keyCode === 114) { e.preventDefault(); comandoSinonimo(); } // F3
             if (e.keyCode === 115) { e.preventDefault(); comandoSalvar(); }
         };
 
-        // --- RECONHECIMENTO DE VOZ (SEM LOOP) ---
+        // VOZ (MODO MANUAL)
         function ativarVoz() {
             const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Recognition) {
-                falar("Seu navegador não suporta voz.");
-                return;
-            }
+            if (!Recognition) return;
 
             const rec = new Recognition();
             rec.lang = 'pt-BR';
             
-            rec.onstart = () => { status.innerText = "Ouvindo... Fale agora!"; };
-            rec.onerror = (e) => { status.innerText = "Erro no microfone: " + e.error; };
-            
+            rec.onstart = () => { status.innerText = "Microfone ligado... Diga um comando!"; };
             rec.onresult = (event) => {
                 const fala = event.results[0][0].transcript.toLowerCase();
                 status.innerText = "Ouvi: " + fala;
                 if (fala.includes("descrever")) comandoDescrever();
-                else if (fala.includes("ler") || fala.includes("leitura")) comandoLer();
+                else if (fala.includes("ler")) comandoLer();
+                else if (fala.includes("sinônimo")) comandoSinonimo();
                 else if (fala.includes("salvar")) comandoSalvar();
             };
-
             rec.start();
         }
     </script>
