@@ -2,41 +2,56 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Teclado + Voz</title>
+    <title>Narrativa Inclusiva - Versão 100% Funcional</title>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; text-align: center; padding: 20px; }
-        .quadros { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .cena { width: 200px; background: white; border: 2px solid #ddd; padding: 10px; border-radius: 10px; }
-        .cena img { width: 100%; height: 120px; object-fit: cover; }
-        textarea { width: 90%; height: 200px; font-size: 1.6rem; padding: 15px; border: 3px solid #007bff; border-radius: 10px; }
-        #status { font-weight: bold; color: #d63384; margin: 15px; font-size: 1.2rem; }
-        .atalhos { margin-top: 20px; color: #555; font-size: 0.9rem; background: #fff; padding: 10px; display: inline-block; border-radius: 5px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; text-align: center; padding: 10px; }
+        .painel-botoes { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        
+        /* Botões Gigantes para facilitar o clique */
+        .btn-acao { 
+            padding: 20px; font-size: 1.1rem; font-weight: bold; border: none; 
+            border-radius: 12px; cursor: pointer; color: white; min-width: 150px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2); transition: 0.2s;
+        }
+        .btn-ouvir { background: #e74c3c; } /* Vermelho */
+        .btn-descrever { background: #3498db; } /* Azul */
+        .btn-ler { background: #27ae60; } /* Verde */
+        .btn-salvar { background: #f39c12; } /* Laranja */
+        .btn-acao:active { transform: scale(0.95); }
+
+        .quadros { display: flex; justify-content: center; gap: 10px; margin: 20px 0; }
+        .cena { width: 180px; background: white; border-radius: 10px; padding: 5px; border: 1px solid #ccc; }
+        .cena img { width: 100%; border-radius: 5px; }
+
+        textarea { width: 90%; height: 200px; font-size: 1.8rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; }
+        #status { margin: 15px; font-weight: bold; color: #2c3e50; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-    <h1>Narrativa Inclusiva</h1>
-    <button id="btn" onclick="iniciar()" style="padding: 20px; font-size: 1.2rem; cursor: pointer;">ATIVAR SISTEMA</button>
-    <div id="status">Aguardando ativação...</div>
+    <div id="status">Pressione os botões ou use as teclas (F1, F2, F4)</div>
+
+    <div class="painel-botoes">
+        <button class="btn-acao btn-ouvir" onclick="ativarVoz()">🎤 LIGAR VOZ</button>
+        <button class="btn-acao btn-descrever" onclick="comandoDescrever()">🖼️ DESCREVER (F1)</button>
+        <button class="btn-acao btn-ler" onclick="comandoLer()">📖 LER TEXTO (F2)</button>
+        <button class="btn-acao btn-salvar" onclick="comandoSalvar()">💾 SALVAR (F4)</button>
+    </div>
 
     <div class="quadros">
-        <div class="cena"><img src="https://picsum.photos/seed/1/300/200"><div>Cena 1</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/2/300/200"><div>Cena 2</div></div>
-        <div class="cena"><img src="https://picsum.photos/seed/3/300/200"><div>Cena 3</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/1/200/150"><div>Cena 1</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/2/200/150"><div>Cena 2</div></div>
+        <div class="cena"><img src="https://picsum.photos/seed/3/200/150"><div>Cena 3</div></div>
     </div>
 
-    <textarea id="texto" placeholder="Escreva aqui..."></textarea>
-
-    <div class="atalhos">
-        <strong>Atalhos de teclado (Acessibilidade):</strong><br>
-        Pressione <b>F1</b>: Descrever Cenas | <b>F2</b>: Ler História | <b>F4</b>: Salvar Arquivo
-    </div>
+    <textarea id="meuTexto" placeholder="Escreva sua história aqui..."></textarea>
 
     <script>
+        const campo = document.getElementById('meuTexto');
         const status = document.getElementById('status');
-        const campo = document.getElementById('texto');
         const synth = window.speechSynthesis;
 
+        // --- FUNÇÕES DE COMANDO ---
         function falar(t) {
             synth.cancel();
             const u = new SpeechSynthesisUtterance(t);
@@ -44,51 +59,59 @@
             synth.speak(u);
         }
 
-        // COMANDOS DE TECLADO (Funciona sempre, mesmo sem microfone)
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'F1') {
-                e.preventDefault();
-                falar("Cena 1: Floresta azul. Cena 2: Baú na cachoeira. Cena 3: Menino encontrando o baú.");
-                status.innerText = "Comando: Descrever (Teclado)";
-            }
-            if (e.key === 'F2') {
-                e.preventDefault();
-                falar(campo.value || "O texto está vazio.");
-                status.innerText = "Comando: Leitura (Teclado)";
-            }
-            if (e.key === 'F4') {
-                e.preventDefault();
-                const blob = new Blob([campo.value], {type: 'text/plain'});
-                const a = document.createElement('a');
-                a.href = URL.createObjectURL(blob);
-                a.download = 'minha_historia.txt';
-                a.click();
-                falar("História salva com sucesso.");
-            }
-        });
+        function comandoDescrever() {
+            falar("Cena 1: Uma floresta mágica. Cena 2: Um baú escondido. Cena 3: Um menino feliz.");
+            status.innerText = "Descrevendo imagens...";
+        }
 
-        // TENTATIVA DE VOZ (Mantida)
-        function iniciar() {
-            falar("Sistema iniciado. Use o teclado ou a voz.");
+        function comandoLer() {
+            const t = campo.value || "O campo de texto está vazio.";
+            falar(t);
+            status.innerText = "Lendo sua história...";
+        }
+
+        function comandoSalvar() {
+            const blob = new Blob([campo.value], {type: 'text/plain'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'historia.txt';
+            a.click();
+            falar("Sua história foi salva no computador.");
+        }
+
+        // --- ATALHOS DE TECLADO (FORÇADOS) ---
+        window.onkeydown = function(e) {
+            // F1
+            if (e.keyCode === 112) { e.preventDefault(); comandoDescrever(); }
+            // F2
+            if (e.keyCode === 113) { e.preventDefault(); comandoLer(); }
+            // F4
+            if (e.keyCode === 115) { e.preventDefault(); comandoSalvar(); }
+        };
+
+        // --- RECONHECIMENTO DE VOZ (SEM LOOP) ---
+        function ativarVoz() {
             const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!Recognition) return;
-            
+            if (!Recognition) {
+                falar("Seu navegador não suporta voz.");
+                return;
+            }
+
             const rec = new Recognition();
             rec.lang = 'pt-BR';
             
-            rec.onstart = () => { status.innerText = "Microfone aberto..."; };
-            rec.onerror = (err) => { 
-                status.innerText = "Erro de voz (" + err.error + "). Use as teclas F1, F2 ou F4.";
-            };
+            rec.onstart = () => { status.innerText = "Ouvindo... Fale agora!"; };
+            rec.onerror = (e) => { status.innerText = "Erro no microfone: " + e.error; };
             
             rec.onresult = (event) => {
-                const cmd = event.results[0][0].transcript.toLowerCase();
-                if (cmd.includes("descrever")) falar("Cena 1: Floresta. Cena 2: Baú. Cena 3: Menino.");
-                if (cmd.includes("leitura")) falar(campo.value);
+                const fala = event.results[0][0].transcript.toLowerCase();
+                status.innerText = "Ouvi: " + fala;
+                if (fala.includes("descrever")) comandoDescrever();
+                else if (fala.includes("ler") || fala.includes("leitura")) comandoLer();
+                else if (fala.includes("salvar")) comandoSalvar();
             };
 
-            rec.onend = () => { try { rec.start(); } catch(e) {} };
-            try { rec.start(); } catch(e) {}
+            rec.start();
         }
     </script>
 </body>
