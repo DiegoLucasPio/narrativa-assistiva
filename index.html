@@ -2,26 +2,25 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Acessibilidade Total</title>
+    <title>Narrativa Assistiva - Acessibilidade e Gramática</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; text-align: center; padding: 10px; }
         .painel { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .btn { padding: 12px 18px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; color: white; transition: 0.2s; font-size: 0.9rem; }
-        .btn-v { background: #e74c3c; } .btn-a { background: #3498db; } .btn-g { background: #27ae60; } .btn-p { background: #9b59b6; } .btn-o { background: #f39c12; }
+        .btn-a { background: #3498db; } .btn-g { background: #27ae60; } .btn-p { background: #9b59b6; } .btn-v { background: #e67e22; } .btn-o { background: #7f8c8d; }
         
         .quadros { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
         .cena { width: 280px; background: white; border-radius: 12px; padding: 12px; border: 3px solid #cfe2ff; }
-        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; }
-        .cena strong { display: block; margin-top: 10px; color: #084298; }
+        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: #eee; }
         
         textarea { width: 90%; height: 200px; font-size: 1.7rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; margin-top: 10px; outline: none; }
         #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #3498db; min-height: 1.5em; }
-        .alerta { background: #fff3cd !important; border-color: #ffc107 !important; color: #856404 !important; }
+        .alerta { background: #fff3cd !important; border-color: #ffc107 !important; }
     </style>
 </head>
 <body>
 
-    <div id="status">Pressione F1 para ouvir a descrição das cenas.</div>
+    <div id="status">Aperte F1 para ouvir a descrição das cenas.</div>
 
     <div class="painel">
         <button class="btn btn-a" onclick="cmdDescrever()">🖼️ DESCRIÇÃO (F1)</button>
@@ -33,20 +32,20 @@
 
     <div class="quadros">
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1526772662000-3f88f10405ff?w=400" alt="Mapa antigo na floresta">
-            <strong>1. A Descoberta</strong>
+            <img src="https://images.unsplash.com/photo-1585806110290-30230787e95b?w=400" alt="Mapa antigo">
+            <strong>1. O Mapa Misterioso</strong>
         </div>
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1444076784383-69fc7bad9006?w=400" alt="Ponte de cordas alta">
-            <strong>2. A Travessia</strong>
+            <img src="https://images.unsplash.com/photo-1516248911578-f903561a3f65?w=400" alt="Ponte alta">
+            <strong>2. A Travessia Perigosa</strong>
         </div>
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1589923158776-cb4485d99fd6?w=400" alt="Baú de ouro em caverna brilhante">
-            <strong>3. O Tesouro</strong>
+            <img src="https://images.unsplash.com/photo-1620921434220-3b987cc743ce?w=400" alt="Tesouro na caverna">
+            <strong>3. O Grande Tesouro</strong>
         </div>
     </div>
 
-    <textarea id="txt" placeholder="Comece a escrever sua história aqui..."></textarea>
+    <textarea id="txt" placeholder="Escreva aqui... Use o F8 se ouvir o bipe!"></textarea>
 
     <script>
         const campo = document.getElementById('txt');
@@ -59,95 +58,110 @@
             "feliz": ["alegre", "contente", "radiante"],
             "grande": ["enorme", "gigante", "imenso"],
             "medo": ["receio", "temor", "pavor"],
-            "achar": ["encontrar", "localizar", "descobrir"]
+            "achar": ["encontrar", "localizar", "descobrir"],
+            "casa": ["lar", "moradia", "residência"]
         };
 
         function falar(t) {
             synth.cancel();
             const u = new SpeechSynthesisUtterance(t);
             u.lang = 'pt-BR';
-            u.rate = 0.9; // Velocidade um pouco mais lenta para clareza
+            u.rate = 0.95;
             synth.speak(u);
         }
 
         function tocarBipe() {
-            const context = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = context.createOscillator();
-            osc.connect(context.destination);
-            osc.start(); osc.stop(context.currentTime + 0.1);
+            try {
+                const context = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = context.createOscillator();
+                osc.connect(context.destination);
+                osc.start(); osc.stop(context.currentTime + 0.1);
+            } catch(e) {}
         }
 
         function mostrarAlerta(msg) {
+            if (ultimaDica === msg) return; // Evita repetir a mesma dica sem parar
             ultimaDica = msg;
             status.innerText = "💡 " + msg;
             status.classList.add('alerta');
             tocarBipe();
-            falar(msg); // O computador fala a dica automaticamente
+            falar(msg);
             setTimeout(() => status.classList.remove('alerta'), 4000);
         }
 
-        // --- MONITOR DE ESCRITA ---
+        // --- MOTOR DE ASSISTÊNCIA CORRIGIDO ---
         campo.addEventListener('input', () => {
             const texto = campo.value;
-            if (texto.length === 0) return;
+            if (texto.length === 0) { ultimaDica = ""; return; }
+            
             const ultChar = texto.slice(-1);
 
-            // Regra: Maiúscula no início
+            // 1. Maiúscula no início
             if (texto.length === 1 && texto !== texto.toUpperCase()) {
                 mostrarAlerta("Dica: Comece sua história com letra maiúscula.");
             }
 
-            // Regra: Maiúscula após pontuação
-            if (texto.length > 2 && texto.slice(-2, -1) === " ") {
-                const charAntes = texto.slice(-3, -2);
-                if ([".", "!", "?"].includes(charAntes) && ultChar !== ultChar.toUpperCase()) {
-                    mostrarAlerta("Atenção: Use letra maiúscula depois do ponto.");
-                }
-            }
-
-            // Regra: Sinônimos e Vírgulas
+            // 2. Verificação de Conectivos e Vírgula (Lógica Inteligente)
             if (ultChar === " ") {
-                const palavras = texto.trim().split(/\s+/);
+                const trecho = texto.trim();
+                const palavras = trecho.split(/\s+/);
                 const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!?;]/g, "");
                 
+                const conectivos = ["mas", "porque", "então", "pois", "porem"];
+                
+                if (conectivos.includes(ultima)) {
+                    // Verifica se existe uma vírgula ANTES da palavra
+                    // Procuramos por ", mas" ou ",mas" no final do texto digitado
+                    const regexVirgula = new RegExp(`,\\s*${ultima}$`, 'i');
+                    const jaTemVirgula = regexVirgula.test(trecho);
+
+                    if (!jaTemVirgula) {
+                        mostrarAlerta(`Dica: Quase sempre usamos uma vírgula antes da palavra ${ultima}.`);
+                    } else {
+                        ultimaDica = ""; // Reseta para permitir novas dicas
+                        status.innerText = "Muito bem! Você usou a vírgula corretamente.";
+                    }
+                }
+
+                // Sinônimos
                 if (dic[ultima]) {
                     mostrarAlerta(`Você sabia? Existem outras palavras para ${ultima}. Aperte F3 para ouvir.`);
                 }
-                if (["mas", "porque", "então"].includes(ultima)) {
-                    mostrarAlerta(`Dica: Que tal colocar uma vírgula antes de ${ultima}?`);
+            }
+
+            // 3. Maiúscula após ponto
+            if (texto.length > 2 && texto.slice(-2, -1) === " ") {
+                const charAnterior = texto.slice(-3, -2);
+                if ([".", "!", "?"].includes(charAnterior) && ultChar !== ultChar.toUpperCase() && ultChar !== " ") {
+                    mostrarAlerta("Atenção: Depois do ponto, comece com letra maiúscula.");
                 }
             }
         });
 
-        // --- COMANDOS ATUALIZADOS ---
-
+        // --- COMANDOS ---
         function cmdDescrever() {
-            const descricao = `
-                Vou descrever as três cenas para você. 
-                Cena um: O Início. Um pequeno explorador de mochila e chapéu encontra um pergaminho antigo de papel amarelado caído no chão de uma floresta misteriosa. As árvores ao redor têm folhas de um tom azul brilhante.
-                Cena dois: O Desafio. O explorador precisa atravessar uma ponte de cordas muito alta e balançante. A ponte cruza um desfiladeiro profundo onde corre um rio lá embaixo, cercado por névoa.
-                Cena três: O Fim. Dentro de uma caverna iluminada por cristais roxos que brilham nas paredes, o explorador encontra um grande baú de madeira entalhada transbordando de moedas de ouro, joias e colares coloridos.
+            const desc = `
+                Descrição detalhada das cenas. 
+                Cena 1: O Início. Um pequeno aventureiro com uma mochila azul e um chapéu marrom está agachado no chão de uma floresta mágica. Ele segura um mapa de papel antigo que acabou de encontrar entre raízes de árvores com folhas azuis brilhantes.
+                Cena 2: O Meio. O aventureiro está no meio de uma ponte de cordas muito alta. A ponte balança sobre um rio barulhento e pedregoso. Há muita névoa branca ao redor das montanhas ao fundo.
+                Cena 3: O Fim. Dentro de uma caverna escura, mas iluminada por cristais que brilham nas paredes, o aventureiro sorri ao lado de um baú de madeira aberto. O baú está cheio de moedas de ouro reluzentes e colares de pérolas.
             `;
-            falar(descricao);
+            falar(desc);
         }
 
-        function cmdLer() { falar(campo.value || "Você ainda não escreveu nada."); }
+        function cmdLer() { falar(campo.value || "O texto está vazio."); }
 
         function cmdSinonimo() {
             const p = campo.value.trim().split(/\s+/);
             const u = p[p.length - 1]?.toLowerCase().replace(/[.,!?;]/g, "");
             if (dic[u]) {
-                const msg = `Para a palavra ${u}, você pode usar: ${dic[u].join(", ")}`;
-                falar(msg);
-                status.innerText = msg;
+                falar(`Sinônimos para ${u}: ${dic[u].join(", ")}`);
             } else {
-                falar("Ainda não tenho sinônimos para a última palavra que você escreveu.");
+                falar("Não encontrei sinônimos para esta palavra.");
             }
         }
 
-        function cmdRepetirDica() {
-            falar(ultimaDica || "Ainda não tenho nenhuma dica para você.");
-        }
+        function cmdRepetirDica() { falar(ultimaDica || "Não tenho nenhuma dica no momento."); }
 
         function cmdSalvar() {
             const blob = new Blob([campo.value], {type: 'text/plain'});
@@ -155,16 +169,15 @@
             a.href = URL.createObjectURL(blob);
             a.download = 'historia.txt';
             a.click();
-            falar("Sua história foi salva no computador.");
+            falar("Arquivo salvo com sucesso.");
         }
 
-        // ATALHOS DE TECLADO
         window.onkeydown = (e) => {
-            if (e.keyCode === 112) { e.preventDefault(); cmdDescrever(); } // F1
-            if (e.keyCode === 113) { e.preventDefault(); cmdLer(); }       // F2
-            if (e.keyCode === 114) { e.preventDefault(); cmdSinonimo(); }  // F3
-            if (e.keyCode === 115) { e.preventDefault(); cmdSalvar(); }    // F4
-            if (e.keyCode === 119) { e.preventDefault(); cmdRepetirDica(); } // F8
+            if (e.keyCode === 112) { e.preventDefault(); cmdDescrever(); }
+            if (e.keyCode === 113) { e.preventDefault(); cmdLer(); }
+            if (e.keyCode === 114) { e.preventDefault(); cmdSinonimo(); }
+            if (e.keyCode === 115) { e.preventDefault(); cmdSalvar(); }
+            if (e.keyCode === 119) { e.preventDefault(); cmdRepetirDica(); }
         };
     </script>
 </body>
