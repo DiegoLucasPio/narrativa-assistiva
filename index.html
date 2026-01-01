@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Minha Primeira História - O Passarinho</title>
+    <title>História do Passarinho - Estável</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background: #eef9ff; text-align: center; padding: 10px; }
         .painel { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
@@ -11,9 +11,9 @@
         
         .quadros { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
         .cena { width: 260px; background: white; border-radius: 12px; padding: 15px; border: 3px solid #b3e5fc; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
-        /* Ajustei o tamanho para os ícones ficarem bem visíveis */
-        .cena img { width: 100%; height: 180px; object-fit: contain; }
-        .cena strong { display: block; margin-top: 15px; color: #0277bd; font-size: 1.1rem; }
+        /* Estilo para os desenhos em código */
+        .icon-box { width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px; }
+        svg { width: 100px; height: 100px; }
         
         textarea { width: 90%; height: 200px; font-size: 1.8rem; padding: 15px; border: 4px solid #03a9f4; border-radius: 15px; margin-top: 10px; outline: none; }
         #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #03a9f4; min-height: 1.5em; }
@@ -22,7 +22,7 @@
 </head>
 <body>
 
-    <div id="status">Escreva a história do passarinho. Use F1 para ajuda.</div>
+    <div id="status">Escreva a história do passarinho. Use F1 para ouvir as cenas.</div>
 
     <div class="painel">
         <button class="btn btn-a" onclick="cmdDescrever()">🖼️ O QUE ACONTECE? (F1)</button>
@@ -34,16 +34,34 @@
 
     <div class="quadros">
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/1028/1028943.png" alt="Gaiola fechada com um pássaro dentro">
-            <strong>1. O pássaro preso</strong>
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14M9 21V5M15 21V5M5 10h14M5 15h14"/>
+                    <circle cx="12" cy="12" r="2" fill="#3498db"/>
+                </svg>
+            </div>
+            <strong>1. O pássaro está preso na gaiola.</strong>
         </div>
+
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/2452/2452607.png" alt="Gaiola com a porta aberta e o pássaro voando para fora">
-            <strong>2. A liberdade</strong>
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 21h18M5 21V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v14M9 21V5M15 21V5"/>
+                    <path d="M19 12l-4-4m0 8l4-4h-8" stroke="#e67e22"/>
+                </svg>
+            </div>
+            <strong>2. A porta abriu e ele saiu voando.</strong>
         </div>
+
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="Pássaro feliz cantando em um galho de árvore com notas musicais">
-            <strong>3. O canto feliz</strong>
+            <div class="icon-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#27ae60" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 20c5 0 8-3 11-7m0 0c3-4 6-4 8-4M14 13c1 2 3 3 5 3"/>
+                    <path d="M15 5v2M18 3v2" stroke="#9b59b6"/>
+                    <circle cx="16" cy="10" r="3" fill="#3498db"/>
+                </svg>
+            </div>
+            <strong>3. Agora ele canta livre na árvore.</strong>
         </div>
     </div>
 
@@ -55,16 +73,13 @@
         const synth = window.speechSynthesis;
         let ultimaDica = "";
 
-        // Dicionário focado na história
         const dic = {
-            "pássaro": ["passarinho", "ave", "amiguinho voador"],
-            "triste": ["chateado", "infeliz", "quieto", "preso"],
-            "feliz": ["alegre", "contente", "radiante", "livre"],
-            "voar": ["subir", "bater asas", "partir", "escapar"],
-            "cantar": ["assobiar", "gorjear", "piar"],
-            "gaiola": ["prisão", "casinha de ferro"],
-            "abrir": ["soltar", "libertar", "destrancar"],
-            "menino": ["garoto", "criança", "jovem"]
+            "pássaro": ["passarinho", "ave", "amiguinho"],
+            "triste": ["chateado", "preso", "quieto"],
+            "feliz": ["alegre", "contente", "livre"],
+            "voar": ["bater asas", "subir", "partir"],
+            "cantar": ["assobiar", "gorjear"],
+            "gaiola": ["prisão", "casinha de ferro"]
         };
 
         function falar(t) {
@@ -76,12 +91,10 @@
         }
 
         function tocarBipe() {
-            try {
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = context.createOscillator();
-                osc.connect(context.destination);
-                osc.start(); osc.stop(context.currentTime + 0.1);
-            } catch(e) {}
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            osc.connect(context.destination);
+            osc.start(); osc.stop(context.currentTime + 0.1);
         }
 
         function mostrarAlerta(msg) {
@@ -94,14 +107,13 @@
             setTimeout(() => status.classList.remove('alerta'), 4000);
         }
 
-        // Monitor de escrita com dicas sonoras
         campo.addEventListener('input', () => {
             const texto = campo.value;
             if (texto.length === 0) { ultimaDica = ""; return; }
             const ultChar = texto.slice(-1);
 
             if (texto.length === 1 && texto !== texto.toUpperCase()) {
-                mostrarAlerta("Comece a frase com letra Maiúscula.");
+                mostrarAlerta("Dica: Comece com letra maiúscula.");
             }
 
             if (ultChar === " ") {
@@ -109,46 +121,37 @@
                 const palavras = trecho.split(/\s+/);
                 const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!?;]/g, "");
                 
-                if (["mas", "porque", "então", "pois"].includes(ultima)) {
-                    const regexVirgula = new RegExp(`,\\s*${ultima}$`, 'i');
-                    if (!regexVirgula.test(trecho)) {
-                        mostrarAlerta(`Coloque uma vírgula antes de ${ultima}.`);
-                    }
+                if (["mas", "porque", "então"].includes(ultima)) {
+                    const regex = new RegExp(`,\\s*${ultima}$`, 'i');
+                    if (!regex.test(trecho)) mostrarAlerta(`Coloque uma vírgula antes de ${ultima}.`);
                 }
 
-                if (dic[ultima]) {
-                    mostrarAlerta(`Aperte F3 para ouvir outros nomes para ${ultima}.`);
-                }
+                if (dic[ultima]) mostrarAlerta(`Aperte F3 para ouvir outros nomes para ${ultima}.`);
             }
 
             if (texto.length > 2 && texto.slice(-2, -1) === " ") {
                 const charAnterior = texto.slice(-3, -2);
                 if ([".", "!", "?"].includes(charAnterior) && ultChar !== ultChar.toUpperCase() && ultChar !== " ") {
-                    mostrarAlerta("Use letra Maiúscula depois do ponto.");
+                    mostrarAlerta("Use letra maiúscula depois do ponto.");
                 }
             }
         });
 
-        // Audiodescrição atualizada para os novos ícones
         function cmdDescrever() {
             falar(`
-                Vou descrever as três imagens da história.
-                Cena 1: Uma gaiola de metal cinza está trancada. Dentro dela, há um passarinho azul parado.
-                Cena 2: A mesma gaiola agora está com a portinha aberta. O passarinho azul está voando para fora, escapando da gaiola.
-                Cena 3: O passarinho azul está livre, pousado em um galho de árvore verde. Há várias notas musicais coloridas ao redor dele, mostrando que ele está cantando feliz.
+                Vou descrever os três quadros da história do passarinho. 
+                Quadro um: Há uma gaiola cinza com grades bem fechadas. Lá dentro, o passarinho azul está preso. 
+                Quadro dois: A porta da gaiola está aberta. Uma seta mostra o passarinho saindo e voando para longe. 
+                Quadro três: O passarinho está pousado sobre o galho verde de uma árvore. Existem notas musicais saindo do seu biquinho, porque ele está cantando de felicidade.
             `);
         }
 
-        function cmdLer() { falar(campo.value || "O papel está em branco. Escreva sua história."); }
+        function cmdLer() { falar(campo.value || "Não há nada escrito."); }
 
         function cmdSinonimo() {
             const p = campo.value.trim().split(/\s+/);
             const u = p[p.length - 1]?.toLowerCase().replace(/[.,!?;]/g, "");
-            if (dic[u]) {
-                falar(`Outras palavras para ${u} são: ${dic[u].join(", ")}`);
-            } else {
-                falar("Ainda não conheço outras palavras para esta.");
-            }
+            if (dic[u]) falar(`Pode usar: ${dic[u].join(", ")}`);
         }
 
         function cmdRepetirDica() { falar(ultimaDica || "Não tenho dicas agora."); }
@@ -157,9 +160,9 @@
             const blob = new Blob([campo.value], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'historia_do_passarinho.txt';
+            a.download = 'minha_historia.txt';
             a.click();
-            falar("História guardada com sucesso.");
+            falar("História salva com sucesso.");
         }
 
         window.onkeydown = (e) => {
@@ -171,3 +174,4 @@
         };
     </script>
 </body>
+</html>
