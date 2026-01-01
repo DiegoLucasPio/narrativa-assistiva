@@ -2,50 +2,51 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Narrativa Assistiva - Acessibilidade e Gramática</title>
+    <title>Minha Primeira História - O Passarinho</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f4f8; text-align: center; padding: 10px; }
+        body { font-family: 'Segoe UI', sans-serif; background: #eef9ff; text-align: center; padding: 10px; }
         .painel { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
         .btn { padding: 12px 18px; font-weight: bold; border: none; border-radius: 10px; cursor: pointer; color: white; transition: 0.2s; font-size: 0.9rem; }
         .btn-a { background: #3498db; } .btn-g { background: #27ae60; } .btn-p { background: #9b59b6; } .btn-v { background: #e67e22; } .btn-o { background: #7f8c8d; }
         
         .quadros { display: flex; justify-content: center; gap: 10px; margin: 15px 0; }
-        .cena { width: 280px; background: white; border-radius: 12px; padding: 12px; border: 3px solid #cfe2ff; }
-        .cena img { width: 100%; height: 160px; object-fit: cover; border-radius: 8px; background: #eee; }
+        .cena { width: 280px; background: white; border-radius: 12px; padding: 12px; border: 3px solid #b3e5fc; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .cena img { width: 100%; height: 160px; object-fit: contain; border-radius: 8px; background: #fafafa; }
+        .cena strong { display: block; margin-top: 10px; color: #0277bd; }
         
-        textarea { width: 90%; height: 200px; font-size: 1.7rem; padding: 15px; border: 4px solid #3498db; border-radius: 15px; margin-top: 10px; outline: none; }
-        #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #3498db; min-height: 1.5em; }
-        .alerta { background: #fff3cd !important; border-color: #ffc107 !important; }
+        textarea { width: 90%; height: 200px; font-size: 1.8rem; padding: 15px; border: 4px solid #03a9f4; border-radius: 15px; margin-top: 10px; outline: none; }
+        #status { margin: 10px; font-weight: bold; color: #2c3e50; background: #fff; display: inline-block; padding: 10px 25px; border-radius: 30px; border: 2px solid #03a9f4; min-height: 1.5em; }
+        .alerta { background: #fff9c4 !important; border-color: #fbc02d !important; }
     </style>
 </head>
 <body>
 
-    <div id="status">Aperte F1 para ouvir a descrição das cenas.</div>
+    <div id="status">Escreva sua história sobre o passarinho!</div>
 
     <div class="painel">
-        <button class="btn btn-a" onclick="cmdDescrever()">🖼️ DESCRIÇÃO (F1)</button>
+        <button class="btn btn-a" onclick="cmdDescrever()">🖼️ O QUE ACONTECE? (F1)</button>
         <button class="btn btn-g" onclick="cmdLer()">📖 LER TEXTO (F2)</button>
-        <button class="btn btn-p" onclick="cmdSinonimo()">🔄 SINÔNIMOS (F3)</button>
+        <button class="btn btn-p" onclick="cmdSinonimo()">🔄 OUTRAS PALAVRAS (F3)</button>
         <button class="btn btn-v" onclick="cmdRepetirDica()">💡 REPETIR DICA (F8)</button>
         <button class="btn btn-o" onclick="cmdSalvar()">💾 SALVAR (F4)</button>
     </div>
 
     <div class="quadros">
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1585806110290-30230787e95b?w=400" alt="Mapa antigo">
-            <strong>1. O Mapa Misterioso</strong>
+            <img src="https://cdn-icons-png.flaticon.com/512/121/121081.png" alt="Pássaro na gaiola">
+            <strong>1. O pássaro está preso.</strong>
         </div>
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1516248911578-f903561a3f65?w=400" alt="Ponte alta">
-            <strong>2. A Travessia Perigosa</strong>
+            <img src="https://cdn-icons-png.flaticon.com/512/2619/2619330.png" alt="Menino soltando o pássaro">
+            <strong>2. O menino abre a porta.</strong>
         </div>
         <div class="cena">
-            <img src="https://images.unsplash.com/photo-1620921434220-3b987cc743ce?w=400" alt="Tesouro na caverna">
-            <strong>3. O Grande Tesouro</strong>
+            <img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="Pássaro cantando na janela">
+            <strong>3. O pássaro canta feliz.</strong>
         </div>
     </div>
 
-    <textarea id="txt" placeholder="Escreva aqui... Use o F8 se ouvir o bipe!"></textarea>
+    <textarea id="txt" placeholder="Dica: Comece com letra Maiúscula!"></textarea>
 
     <script>
         const campo = document.getElementById('txt');
@@ -54,33 +55,31 @@
         let ultimaDica = "";
 
         const dic = {
-            "olhar": ["ver", "observar", "enxergar"],
+            "pássaro": ["passarinho", "ave", "amiguinho"],
+            "triste": ["chateado", "infeliz", "quieto"],
             "feliz": ["alegre", "contente", "radiante"],
-            "grande": ["enorme", "gigante", "imenso"],
-            "medo": ["receio", "temor", "pavor"],
-            "achar": ["encontrar", "localizar", "descobrir"],
-            "casa": ["lar", "moradia", "residência"]
+            "voar": ["subir", "ganhar as nuvens", "planar"],
+            "cantar": ["assobiar", "gorjear"],
+            "gaiola": ["prisão", "casinha de ferro"]
         };
 
         function falar(t) {
             synth.cancel();
             const u = new SpeechSynthesisUtterance(t);
             u.lang = 'pt-BR';
-            u.rate = 0.95;
+            u.rate = 0.9;
             synth.speak(u);
         }
 
         function tocarBipe() {
-            try {
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = context.createOscillator();
-                osc.connect(context.destination);
-                osc.start(); osc.stop(context.currentTime + 0.1);
-            } catch(e) {}
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = context.createOscillator();
+            osc.connect(context.destination);
+            osc.start(); osc.stop(context.currentTime + 0.1);
         }
 
         function mostrarAlerta(msg) {
-            if (ultimaDica === msg) return; // Evita repetir a mesma dica sem parar
+            if (ultimaDica === msg) return;
             ultimaDica = msg;
             status.innerText = "💡 " + msg;
             status.classList.add('alerta');
@@ -89,87 +88,70 @@
             setTimeout(() => status.classList.remove('alerta'), 4000);
         }
 
-        // --- MOTOR DE ASSISTÊNCIA CORRIGIDO ---
         campo.addEventListener('input', () => {
             const texto = campo.value;
             if (texto.length === 0) { ultimaDica = ""; return; }
-            
             const ultChar = texto.slice(-1);
 
-            // 1. Maiúscula no início
             if (texto.length === 1 && texto !== texto.toUpperCase()) {
-                mostrarAlerta("Dica: Comece sua história com letra maiúscula.");
+                mostrarAlerta("Comece a frase com letra Maiúscula.");
             }
 
-            // 2. Verificação de Conectivos e Vírgula (Lógica Inteligente)
             if (ultChar === " ") {
                 const trecho = texto.trim();
                 const palavras = trecho.split(/\s+/);
                 const ultima = palavras[palavras.length - 1].toLowerCase().replace(/[.,!?;]/g, "");
                 
-                const conectivos = ["mas", "porque", "então", "pois", "porem"];
-                
-                if (conectivos.includes(ultima)) {
-                    // Verifica se existe uma vírgula ANTES da palavra
-                    // Procuramos por ", mas" ou ",mas" no final do texto digitado
+                if (["mas", "porque", "então"].includes(ultima)) {
                     const regexVirgula = new RegExp(`,\\s*${ultima}$`, 'i');
-                    const jaTemVirgula = regexVirgula.test(trecho);
-
-                    if (!jaTemVirgula) {
-                        mostrarAlerta(`Dica: Quase sempre usamos uma vírgula antes da palavra ${ultima}.`);
-                    } else {
-                        ultimaDica = ""; // Reseta para permitir novas dicas
-                        status.innerText = "Muito bem! Você usou a vírgula corretamente.";
+                    if (!regexVirgula.test(trecho)) {
+                        mostrarAlerta(`Coloque uma vírgula antes de ${ultima}.`);
                     }
                 }
 
-                // Sinônimos
                 if (dic[ultima]) {
-                    mostrarAlerta(`Você sabia? Existem outras palavras para ${ultima}. Aperte F3 para ouvir.`);
+                    mostrarAlerta(`Aperte F3 para ouvir outros nomes para ${ultima}.`);
                 }
             }
 
-            // 3. Maiúscula após ponto
             if (texto.length > 2 && texto.slice(-2, -1) === " ") {
                 const charAnterior = texto.slice(-3, -2);
                 if ([".", "!", "?"].includes(charAnterior) && ultChar !== ultChar.toUpperCase() && ultChar !== " ") {
-                    mostrarAlerta("Atenção: Depois do ponto, comece com letra maiúscula.");
+                    mostrarAlerta("Use letra Maiúscula depois do ponto.");
                 }
             }
         });
 
-        // --- COMANDOS ---
         function cmdDescrever() {
-            const desc = `
-                Descrição detalhada das cenas. 
-                Cena 1: O Início. Um pequeno aventureiro com uma mochila azul e um chapéu marrom está agachado no chão de uma floresta mágica. Ele segura um mapa de papel antigo que acabou de encontrar entre raízes de árvores com folhas azuis brilhantes.
-                Cena 2: O Meio. O aventureiro está no meio de uma ponte de cordas muito alta. A ponte balança sobre um rio barulhento e pedregoso. Há muita névoa branca ao redor das montanhas ao fundo.
-                Cena 3: O Fim. Dentro de uma caverna escura, mas iluminada por cristais que brilham nas paredes, o aventureiro sorri ao lado de um baú de madeira aberto. O baú está cheio de moedas de ouro reluzentes e colares de pérolas.
-            `;
-            falar(desc);
+            falar(`
+                Aqui está a história do passarinho em três partes.
+                Na primeira parte, um menino olha para um passarinho que está preso dentro de uma gaiola redonda. O passarinho parece triste.
+                Na segunda parte, o menino leva a gaiola para o jardim e abre a portinha. O passarinho sai voando para perto de uma árvore.
+                Na terceira parte, o menino está na janela de casa, sorrindo muito. O passarinho está livre lá fora, em um galho, cantando uma música muito bonita.
+            `);
         }
 
-        function cmdLer() { falar(campo.value || "O texto está vazio."); }
+        function cmdLer() { falar(campo.value || "O papel está em branco."); }
 
         function cmdSinonimo() {
             const p = campo.value.trim().split(/\s+/);
             const u = p[p.length - 1]?.toLowerCase().replace(/[.,!?;]/g, "");
             if (dic[u]) {
-                falar(`Sinônimos para ${u}: ${dic[u].join(", ")}`);
+                falar(`Outras palavras para ${u} são: ${dic[u].join(", ")}`);
             } else {
-                falar("Não encontrei sinônimos para esta palavra.");
+                falar("Ainda não conheço outras palavras para esta.");
             }
         }
 
-        function cmdRepetirDica() { falar(ultimaDica || "Não tenho nenhuma dica no momento."); }
+        function cmdRepetirDica() { falar(ultimaDica || "Não tenho dicas agora."); }
 
         function cmdSalvar() {
             const blob = new Blob([campo.value], {type: 'text/plain'});
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
-            a.download = 'historia.txt';
+            a.download = 'minha_historia.txt';
             a.click();
-            falar("Arquivo salvo com sucesso.");
+            falar("História guardada com sucesso.");
         }
 
         window.onkeydown = (e) => {
