@@ -10,8 +10,8 @@
         .btn-a { background: #3498db; } .btn-g { background: #27ae60; } .btn-p { background: #9b59b6; } .btn-v { background: #e67e22; } .btn-o { background: #7f8c8d; }
         
         .quadros { display: flex; justify-content: center; gap: 15px; margin: 20px 0; }
-        /* Aumentei um pouco os quadros para as imagens ficarem mais claras */
         .cena { width: 260px; background: white; border-radius: 12px; padding: 15px; border: 3px solid #b3e5fc; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        /* Ajustei o tamanho para os ícones ficarem bem visíveis */
         .cena img { width: 100%; height: 180px; object-fit: contain; }
         .cena strong { display: block; margin-top: 15px; color: #0277bd; font-size: 1.1rem; }
         
@@ -34,15 +34,15 @@
 
     <div class="quadros">
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/3022/3022348.png" alt="Gaiola fechada com um pássaro triste dentro">
+            <img src="https://cdn-icons-png.flaticon.com/512/1028/1028943.png" alt="Gaiola fechada com um pássaro dentro">
             <strong>1. O pássaro preso</strong>
         </div>
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/3022/3022397.png" alt="Gaiola com a porta aberta e o pássaro saindo voando">
+            <img src="https://cdn-icons-png.flaticon.com/512/2452/2452607.png" alt="Gaiola com a porta aberta e o pássaro voando para fora">
             <strong>2. A liberdade</strong>
         </div>
         <div class="cena">
-            <img src="https://cdn-icons-png.flaticon.com/512/2913/2913465.png" alt="Pássaro feliz cantando em um galho de árvore">
+            <img src="https://cdn-icons-png.flaticon.com/512/3069/3069172.png" alt="Pássaro feliz cantando em um galho de árvore com notas musicais">
             <strong>3. O canto feliz</strong>
         </div>
     </div>
@@ -55,14 +55,16 @@
         const synth = window.speechSynthesis;
         let ultimaDica = "";
 
+        // Dicionário focado na história
         const dic = {
             "pássaro": ["passarinho", "ave", "amiguinho voador"],
             "triste": ["chateado", "infeliz", "quieto", "preso"],
             "feliz": ["alegre", "contente", "radiante", "livre"],
-            "voar": ["subir", "bater asas", "partir"],
+            "voar": ["subir", "bater asas", "partir", "escapar"],
             "cantar": ["assobiar", "gorjear", "piar"],
             "gaiola": ["prisão", "casinha de ferro"],
-            "abrir": ["soltar", "libertar", "destrancar"]
+            "abrir": ["soltar", "libertar", "destrancar"],
+            "menino": ["garoto", "criança", "jovem"]
         };
 
         function falar(t) {
@@ -92,6 +94,7 @@
             setTimeout(() => status.classList.remove('alerta'), 4000);
         }
 
+        // Monitor de escrita com dicas sonoras
         campo.addEventListener('input', () => {
             const texto = campo.value;
             if (texto.length === 0) { ultimaDica = ""; return; }
@@ -126,12 +129,13 @@
             }
         });
 
+        // Audiodescrição atualizada para os novos ícones
         function cmdDescrever() {
             falar(`
-                Vou contar o que vejo nas imagens.
-                Cena 1: Uma gaiola de metal fechada. Dentro dela, um passarinho azul está parado, parecendo triste.
-                Cena 2: A mesma gaiola, mas agora a portinha está aberta. O passarinho está voando para fora, escapando da gaiola.
-                Cena 3: O passarinho azul está pousado livremente no galho de uma árvore. Há notas musicais ao redor dele, mostrando que ele está cantando muito feliz.
+                Vou descrever as três imagens da história.
+                Cena 1: Uma gaiola de metal cinza está trancada. Dentro dela, há um passarinho azul parado.
+                Cena 2: A mesma gaiola agora está com a portinha aberta. O passarinho azul está voando para fora, escapando da gaiola.
+                Cena 3: O passarinho azul está livre, pousado em um galho de árvore verde. Há várias notas musicais coloridas ao redor dele, mostrando que ele está cantando feliz.
             `);
         }
 
@@ -167,4 +171,3 @@
         };
     </script>
 </body>
-</html>
